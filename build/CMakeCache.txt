@@ -14,6 +14,13 @@
 # EXTERNAL cache entries
 ########################
 
+//Should the dynamic libraries be built? WARNING enable at your
+// own risk
+BUILD_DYNAMIC_LIBRARIES:BOOL=OFF
+
+//Build static libraries
+BUILD_STATIC_LIBRARIES:BOOL=ON
+
 //The directory containing a CMake configuration file for Boost.
 Boost_DIR:PATH=Boost_DIR-NOTFOUND
 
@@ -215,11 +222,288 @@ CMAKE_STRIP:FILEPATH=/usr/bin/strip
 //If true, cmake will use relative paths in makefiles and projects.
 CMAKE_USE_RELATIVE_PATHS:BOOL=OFF
 
-//If this value is on, makefiles will be generated without the
-// .SILENT directive, and all commands will be echoed to the console
-// during the make.  This is useful for debugging only. With Visual
-// Studio IDE projects all commands are done without /nologo.
+//Display every compilation command
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
+
+//Enable to build Debian packages
+CPACK_BINARY_DEB:BOOL=OFF
+
+//Enable to build NSIS packages
+CPACK_BINARY_NSIS:BOOL=OFF
+
+//Enable to build RPM packages
+CPACK_BINARY_RPM:BOOL=OFF
+
+//Enable to build STGZ packages
+CPACK_BINARY_STGZ:BOOL=ON
+
+//Enable to build TBZ2 packages
+CPACK_BINARY_TBZ2:BOOL=OFF
+
+//Enable to build TGZ packages
+CPACK_BINARY_TGZ:BOOL=ON
+
+//Enable to build TZ packages
+CPACK_BINARY_TZ:BOOL=ON
+
+//Enable to build TBZ2 source packages
+CPACK_SOURCE_TBZ2:BOOL=ON
+
+//Enable to build TGZ source packages
+CPACK_SOURCE_TGZ:BOOL=ON
+
+//Enable to build TZ source packages
+CPACK_SOURCE_TZ:BOOL=ON
+
+//Enable to build ZIP source packages
+CPACK_SOURCE_ZIP:BOOL=OFF
+
+//Path to a file.
+FREEIMAGE_INCLUDE_DIRS:PATH=/usr/include
+
+//Path to a library.
+FREEIMAGE_LIBRARIES:FILEPATH=/usr/lib64/libfreeimage.so
+
+//Path to a file.
+FREETYPE_INCLUDE_DIR_freetype2:PATH=/usr/include/freetype2
+
+//Path to a file.
+FREETYPE_INCLUDE_DIR_ft2build:PATH=/usr/include/freetype2
+
+//Path to a library.
+FREETYPE_LIBRARY:FILEPATH=/usr/lib64/libfreetype.so
+
+//Should Gosu's c++11 features get enabled? (this is probably only
+// relevant on linux)
+GOSU_CPP11_ENABLED:BOOL=ON
+
+//Dependencies for target
+GosuStatic_LIB_DEPENDS:STATIC=
+
+//Value Computed by CMake
+Gosu_BINARY_DIR:STATIC=/home/vileda/Projects/cpp/golGL/build/external/gosu/cmake
+
+//Value Computed by CMake
+Gosu_SOURCE_DIR:STATIC=/home/vileda/Projects/cpp/golGL/external/gosu/cmake
+
+//Path to a file.
+OPENAL_INCLUDE_DIR:PATH=/usr/include/AL
+
+//Path to a library.
+OPENAL_LIBRARY:FILEPATH=/usr/lib64/libopenal.so
+
+//Path to a file.
+OPENGL_INCLUDE_DIR:PATH=/usr/include
+
+//Path to a library.
+OPENGL_gl_LIBRARY:FILEPATH=/usr/lib64/libGL.so
+
+//Path to a library.
+OPENGL_glu_LIBRARY:FILEPATH=/usr/lib64/libGLU.so
+
+//Path to a file.
+OPENGL_xmesa_INCLUDE_DIR:PATH=OPENGL_xmesa_INCLUDE_DIR-NOTFOUND
+
+//pkg-config executable
+PKG_CONFIG_EXECUTABLE:FILEPATH=/usr/bin/pkg-config
+
+//Path to a library.
+SDLMAIN_LIBRARY:FILEPATH=/usr/lib64/libSDLmain.a
+
+//Path to a file.
+SDL_INCLUDE_DIR:PATH=/usr/include/SDL
+
+//Where the SDL Library can be found
+SDL_LIBRARY:STRING=/usr/lib64/libSDLmain.a;/usr/lib64/libSDL.so;-lpthread
+
+//Path to a file.
+SDL_TTF_INCLUDE_DIR:PATH=/usr/include/SDL
+
+//Path to a library.
+SDL_TTF_LIBRARY:FILEPATH=/usr/lib64/libSDL_ttf.so
+
+//Path to a file.
+X11_ICE_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a library.
+X11_ICE_LIB:FILEPATH=/usr/lib64/libICE.so
+
+//Path to a file.
+X11_SM_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a library.
+X11_SM_LIB:FILEPATH=/usr/lib64/libSM.so
+
+//Path to a file.
+X11_X11_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a library.
+X11_X11_LIB:FILEPATH=/usr/lib64/libX11.so
+
+//Path to a file.
+X11_XRes_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a library.
+X11_XRes_LIB:FILEPATH=/usr/lib64/libXRes.so
+
+//Path to a file.
+X11_XShm_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a file.
+X11_XSync_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a file.
+X11_XTest_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a library.
+X11_XTest_LIB:FILEPATH=/usr/lib64/libXtst.so
+
+//Path to a file.
+X11_Xaccessrules_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a file.
+X11_Xaccessstr_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a file.
+X11_Xau_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a library.
+X11_Xau_LIB:FILEPATH=/usr/lib64/libXau.so
+
+//Path to a file.
+X11_Xcomposite_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a library.
+X11_Xcomposite_LIB:FILEPATH=/usr/lib64/libXcomposite.so
+
+//Path to a file.
+X11_Xcursor_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a library.
+X11_Xcursor_LIB:FILEPATH=/usr/lib64/libXcursor.so
+
+//Path to a file.
+X11_Xdamage_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a library.
+X11_Xdamage_LIB:FILEPATH=/usr/lib64/libXdamage.so
+
+//Path to a file.
+X11_Xdmcp_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a library.
+X11_Xdmcp_LIB:FILEPATH=/usr/lib64/libXdmcp.so
+
+//Path to a library.
+X11_Xext_LIB:FILEPATH=/usr/lib64/libXext.so
+
+//Path to a file.
+X11_Xfixes_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a library.
+X11_Xfixes_LIB:FILEPATH=/usr/lib64/libXfixes.so
+
+//Path to a file.
+X11_Xft_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a library.
+X11_Xft_LIB:FILEPATH=/usr/lib64/libXft.so
+
+//Path to a file.
+X11_Xi_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a library.
+X11_Xi_LIB:FILEPATH=/usr/lib64/libXi.so
+
+//Path to a file.
+X11_Xinerama_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a library.
+X11_Xinerama_LIB:FILEPATH=/usr/lib64/libXinerama.so
+
+//Path to a file.
+X11_Xinput_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a library.
+X11_Xinput_LIB:FILEPATH=/usr/lib64/libXi.so
+
+//Path to a file.
+X11_Xkb_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a file.
+X11_Xkbfile_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a library.
+X11_Xkbfile_LIB:FILEPATH=/usr/lib64/libxkbfile.so
+
+//Path to a file.
+X11_Xkblib_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a file.
+X11_Xlib_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a file.
+X11_Xmu_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a library.
+X11_Xmu_LIB:FILEPATH=/usr/lib64/libXmu.so
+
+//Path to a file.
+X11_Xpm_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a library.
+X11_Xpm_LIB:FILEPATH=/usr/lib64/libXpm.so
+
+//Path to a file.
+X11_Xrandr_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a library.
+X11_Xrandr_LIB:FILEPATH=/usr/lib64/libXrandr.so
+
+//Path to a file.
+X11_Xrender_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a library.
+X11_Xrender_LIB:FILEPATH=/usr/lib64/libXrender.so
+
+//Path to a file.
+X11_Xscreensaver_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a library.
+X11_Xscreensaver_LIB:FILEPATH=/usr/lib64/libXss.so
+
+//Path to a file.
+X11_Xshape_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a file.
+X11_Xt_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a library.
+X11_Xt_LIB:FILEPATH=/usr/lib64/libXt.so
+
+//Path to a file.
+X11_Xutil_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a file.
+X11_Xv_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a library.
+X11_Xv_LIB:FILEPATH=/usr/lib64/libXv.so
+
+//Path to a library.
+X11_Xxf86misc_LIB:FILEPATH=X11_Xxf86misc_LIB-NOTFOUND
+
+//Path to a library.
+X11_Xxf86vm_LIB:FILEPATH=/usr/lib64/libXxf86vm.so
+
+//Path to a file.
+X11_dpms_INCLUDE_PATH:PATH=/usr/include
+
+//Path to a file.
+X11_xf86misc_INCLUDE_PATH:PATH=X11_xf86misc_INCLUDE_PATH-NOTFOUND
+
+//Path to a file.
+X11_xf86vmode_INCLUDE_PATH:PATH=/usr/include
 
 //Value Computed by CMake
 golGL_BINARY_DIR:STATIC=/home/vileda/Projects/cpp/golGL/build
@@ -340,11 +624,29 @@ CMAKE_EXTRA_GENERATOR_C_SYSTEM_INCLUDE_DIRS:INTERNAL=/usr/local/include;/usr/bin
 CMAKE_GENERATOR:INTERNAL=Ninja
 //Name of generator toolset.
 CMAKE_GENERATOR_TOOLSET:INTERNAL=
+//Have function connect
+CMAKE_HAVE_CONNECT:INTERNAL=1
+//Have function gethostbyname
+CMAKE_HAVE_GETHOSTBYNAME:INTERNAL=1
+//Have symbol pthread_create
+CMAKE_HAVE_LIBC_CREATE:INTERNAL=
+//Have library pthreads
+CMAKE_HAVE_PTHREADS_CREATE:INTERNAL=
+//Have library pthread
+CMAKE_HAVE_PTHREAD_CREATE:INTERNAL=1
+//Have include pthread.h
+CMAKE_HAVE_PTHREAD_H:INTERNAL=1
+//Have function remove
+CMAKE_HAVE_REMOVE:INTERNAL=1
+//Have function shmat
+CMAKE_HAVE_SHMAT:INTERNAL=1
 //Start directory with the top level CMakeLists.txt file for this
 // project
 CMAKE_HOME_DIRECTORY:INTERNAL=/home/vileda/Projects/cpp/golGL
 //Install .so files without execute permission.
 CMAKE_INSTALL_SO_NO_EXE:INTERNAL=0
+//Have library ICE
+CMAKE_LIB_ICE_HAS_ICECONNECTIONNUMBER:INTERNAL=1
 //ADVANCED property for variable: CMAKE_LINKER
 CMAKE_LINKER-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_MAKE_PROGRAM
@@ -362,7 +664,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_LOCAL_GENERATORS:INTERNAL=1
+CMAKE_NUMBER_OF_LOCAL_GENERATORS:INTERNAL=2
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
@@ -403,6 +705,373 @@ CMAKE_UNAME:INTERNAL=/usr/bin/uname
 CMAKE_USE_RELATIVE_PATHS-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CPACK_BINARY_DEB
+CPACK_BINARY_DEB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CPACK_BINARY_NSIS
+CPACK_BINARY_NSIS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CPACK_BINARY_RPM
+CPACK_BINARY_RPM-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CPACK_BINARY_STGZ
+CPACK_BINARY_STGZ-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CPACK_BINARY_TBZ2
+CPACK_BINARY_TBZ2-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CPACK_BINARY_TGZ
+CPACK_BINARY_TGZ-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CPACK_BINARY_TZ
+CPACK_BINARY_TZ-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CPACK_SOURCE_TBZ2
+CPACK_SOURCE_TBZ2-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CPACK_SOURCE_TGZ
+CPACK_SOURCE_TGZ-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CPACK_SOURCE_TZ
+CPACK_SOURCE_TZ-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CPACK_SOURCE_ZIP
+CPACK_SOURCE_ZIP-ADVANCED:INTERNAL=1
+//Details about finding Freetype
+FIND_PACKAGE_MESSAGE_DETAILS_Freetype:INTERNAL=[/usr/lib64/libfreetype.so][/usr/include/freetype2;/usr/include/freetype2][v()]
+//Details about finding Gosu
+FIND_PACKAGE_MESSAGE_DETAILS_Gosu:INTERNAL=[/home/vileda/Projects/cpp/golGL/build/external/gosu/cmake/../../../lib/libGosu.a][/home/vileda/Projects/cpp/golGL/build/external/gosu/cmake/../../../include/Gosu/..][v()]
+//Details about finding OpenAL
+FIND_PACKAGE_MESSAGE_DETAILS_OpenAL:INTERNAL=[/usr/lib64/libopenal.so][/usr/include/AL][v()]
+//Details about finding OpenGL
+FIND_PACKAGE_MESSAGE_DETAILS_OpenGL:INTERNAL=[/usr/lib64/libGL.so][/usr/include][v()]
+//Details about finding PkgConfig
+FIND_PACKAGE_MESSAGE_DETAILS_PkgConfig:INTERNAL=[/usr/bin/pkg-config][v0.28()]
+//Details about finding SDL
+FIND_PACKAGE_MESSAGE_DETAILS_SDL:INTERNAL=[/usr/lib64/libSDLmain.a;/usr/lib64/libSDL.so;-lpthread][/usr/include/SDL][v1.2.15()]
+//Details about finding SDL_ttf
+FIND_PACKAGE_MESSAGE_DETAILS_SDL_ttf:INTERNAL=[/usr/lib64/libSDL_ttf.so][/usr/include/SDL][v2.0.11()]
+//Details about finding Threads
+FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
+//Details about finding X11
+FIND_PACKAGE_MESSAGE_DETAILS_X11:INTERNAL=[/usr/lib64/libX11.so][/usr/include]
+//ADVANCED property for variable: FREEIMAGE_INCLUDE_DIRS
+FREEIMAGE_INCLUDE_DIRS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: FREEIMAGE_LIBRARIES
+FREEIMAGE_LIBRARIES-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: FREETYPE_INCLUDE_DIR_freetype2
+FREETYPE_INCLUDE_DIR_freetype2-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: FREETYPE_INCLUDE_DIR_ft2build
+FREETYPE_INCLUDE_DIR_ft2build-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: FREETYPE_LIBRARY
+FREETYPE_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OPENAL_INCLUDE_DIR
+OPENAL_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OPENAL_LIBRARY
+OPENAL_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OPENGL_INCLUDE_DIR
+OPENGL_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OPENGL_gl_LIBRARY
+OPENGL_gl_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OPENGL_glu_LIBRARY
+OPENGL_glu_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OPENGL_xmesa_INCLUDE_DIR
+OPENGL_xmesa_INCLUDE_DIR-ADVANCED:INTERNAL=1
+PANGOFT_CFLAGS:INTERNAL=-pthread;-I/usr/include/pango-1.0;-I/usr/include/glib-2.0;-I/usr/lib/glib-2.0/include;-I/usr/include/freetype2;-I/usr/include/libpng16;-I/usr/include/harfbuzz;-I/usr/include/freetype2;-I/usr/include/libpng16;-I/usr/include/harfbuzz
+PANGOFT_CFLAGS_I:INTERNAL=
+PANGOFT_CFLAGS_OTHER:INTERNAL=-pthread
+PANGOFT_FOUND:INTERNAL=1
+PANGOFT_INCLUDEDIR:INTERNAL=/usr/include
+PANGOFT_INCLUDE_DIRS:INTERNAL=/usr/include/pango-1.0;/usr/include/glib-2.0;/usr/lib/glib-2.0/include;/usr/include/freetype2;/usr/include/libpng16;/usr/include/harfbuzz;/usr/include/freetype2;/usr/include/libpng16;/usr/include/harfbuzz
+PANGOFT_LDFLAGS:INTERNAL=-lpangoft2-1.0;-lpango-1.0;-lgobject-2.0;-lglib-2.0;-lfontconfig;-lfreetype
+PANGOFT_LDFLAGS_OTHER:INTERNAL=
+PANGOFT_LIBDIR:INTERNAL=/usr/lib
+PANGOFT_LIBRARIES:INTERNAL=pangoft2-1.0;pango-1.0;gobject-2.0;glib-2.0;fontconfig;freetype
+PANGOFT_LIBRARY_DIRS:INTERNAL=
+PANGOFT_LIBS:INTERNAL=
+PANGOFT_LIBS_L:INTERNAL=
+PANGOFT_LIBS_OTHER:INTERNAL=
+PANGOFT_LIBS_PATHS:INTERNAL=
+PANGOFT_PREFIX:INTERNAL=/usr
+PANGOFT_STATIC_CFLAGS:INTERNAL=-pthread;-I/usr/include/pango-1.0;-I/usr/include/glib-2.0;-I/usr/lib/glib-2.0/include;-I/usr/include/freetype2;-I/usr/include/libpng16;-I/usr/include/harfbuzz;-I/usr/include/freetype2;-I/usr/include/libpng16;-I/usr/include/harfbuzz
+PANGOFT_STATIC_CFLAGS_I:INTERNAL=
+PANGOFT_STATIC_CFLAGS_OTHER:INTERNAL=-pthread
+PANGOFT_STATIC_INCLUDE_DIRS:INTERNAL=/usr/include/pango-1.0;/usr/include/glib-2.0;/usr/lib/glib-2.0/include;/usr/include/freetype2;/usr/include/libpng16;/usr/include/harfbuzz;/usr/include/freetype2;/usr/include/libpng16;/usr/include/harfbuzz
+PANGOFT_STATIC_LDFLAGS:INTERNAL=-L/usr/lib;-lpangoft2-1.0;-lpango-1.0;-lgmodule-2.0;-pthread;-ldl;-lgobject-2.0;-lffi;-lglib-2.0;-pthread;-lpcre;-lfontconfig;-lexpat;-lfreetype;-lexpat;-lfreetype;-lbz2;-lz;-lpng16;-lm;-lz;-lm;-lharfbuzz
+PANGOFT_STATIC_LDFLAGS_OTHER:INTERNAL=-pthread
+PANGOFT_STATIC_LIBDIR:INTERNAL=
+PANGOFT_STATIC_LIBRARIES:INTERNAL=pangoft2-1.0;pango-1.0;gmodule-2.0;dl;gobject-2.0;ffi;glib-2.0;pcre;fontconfig;expat;freetype;expat;freetype;bz2;z;png16;m;z;m;harfbuzz
+PANGOFT_STATIC_LIBRARY_DIRS:INTERNAL=/usr/lib
+PANGOFT_STATIC_LIBS:INTERNAL=
+PANGOFT_STATIC_LIBS_L:INTERNAL=
+PANGOFT_STATIC_LIBS_OTHER:INTERNAL=
+PANGOFT_STATIC_LIBS_PATHS:INTERNAL=
+PANGOFT_VERSION:INTERNAL=1.36.3
+PANGOFT_pangoft2_INCLUDEDIR:INTERNAL=
+PANGOFT_pangoft2_LIBDIR:INTERNAL=
+PANGOFT_pangoft2_PREFIX:INTERNAL=
+PANGOFT_pangoft2_VERSION:INTERNAL=
+PANGO_CFLAGS:INTERNAL=-pthread;-I/usr/include/pango-1.0;-I/usr/include/glib-2.0;-I/usr/lib/glib-2.0/include
+PANGO_CFLAGS_I:INTERNAL=
+PANGO_CFLAGS_OTHER:INTERNAL=-pthread
+PANGO_FOUND:INTERNAL=1
+PANGO_INCLUDEDIR:INTERNAL=/usr/include
+PANGO_INCLUDE_DIRS:INTERNAL=/usr/include/pango-1.0;/usr/include/glib-2.0;/usr/lib/glib-2.0/include
+PANGO_LDFLAGS:INTERNAL=-lpango-1.0;-lgobject-2.0;-lglib-2.0
+PANGO_LDFLAGS_OTHER:INTERNAL=
+PANGO_LIBDIR:INTERNAL=/usr/lib
+PANGO_LIBRARIES:INTERNAL=pango-1.0;gobject-2.0;glib-2.0
+PANGO_LIBRARY_DIRS:INTERNAL=
+PANGO_LIBS:INTERNAL=
+PANGO_LIBS_L:INTERNAL=
+PANGO_LIBS_OTHER:INTERNAL=
+PANGO_LIBS_PATHS:INTERNAL=
+PANGO_PREFIX:INTERNAL=/usr
+PANGO_STATIC_CFLAGS:INTERNAL=-pthread;-I/usr/include/pango-1.0;-I/usr/include/glib-2.0;-I/usr/lib/glib-2.0/include
+PANGO_STATIC_CFLAGS_I:INTERNAL=
+PANGO_STATIC_CFLAGS_OTHER:INTERNAL=-pthread
+PANGO_STATIC_INCLUDE_DIRS:INTERNAL=/usr/include/pango-1.0;/usr/include/glib-2.0;/usr/lib/glib-2.0/include
+PANGO_STATIC_LDFLAGS:INTERNAL=-lpango-1.0;-lgmodule-2.0;-pthread;-ldl;-lgobject-2.0;-lffi;-lglib-2.0;-pthread;-lpcre
+PANGO_STATIC_LDFLAGS_OTHER:INTERNAL=-pthread
+PANGO_STATIC_LIBDIR:INTERNAL=
+PANGO_STATIC_LIBRARIES:INTERNAL=pango-1.0;gmodule-2.0;dl;gobject-2.0;ffi;glib-2.0;pcre
+PANGO_STATIC_LIBRARY_DIRS:INTERNAL=
+PANGO_STATIC_LIBS:INTERNAL=
+PANGO_STATIC_LIBS_L:INTERNAL=
+PANGO_STATIC_LIBS_OTHER:INTERNAL=
+PANGO_STATIC_LIBS_PATHS:INTERNAL=
+PANGO_VERSION:INTERNAL=1.36.3
+PANGO_pango_INCLUDEDIR:INTERNAL=
+PANGO_pango_LIBDIR:INTERNAL=
+PANGO_pango_PREFIX:INTERNAL=
+PANGO_pango_VERSION:INTERNAL=
+//ADVANCED property for variable: PKG_CONFIG_EXECUTABLE
+PKG_CONFIG_EXECUTABLE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: SDL_INCLUDE_DIR
+SDL_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: SDL_LIBRARY
+SDL_LIBRARY-ADVANCED:INTERNAL=1
+SDL_LIBRARY_TEMP:INTERNAL=/usr/lib64/libSDLmain.a;/usr/lib64/libSDL.so;-lpthread;-lpthread
+//ADVANCED property for variable: SDL_TTF_INCLUDE_DIR
+SDL_TTF_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: SDL_TTF_LIBRARY
+SDL_TTF_LIBRARY-ADVANCED:INTERNAL=1
+SNDFILE_CFLAGS:INTERNAL=
+SNDFILE_CFLAGS_I:INTERNAL=
+SNDFILE_CFLAGS_OTHER:INTERNAL=
+SNDFILE_FOUND:INTERNAL=1
+SNDFILE_INCLUDEDIR:INTERNAL=/usr/include
+SNDFILE_INCLUDE_DIRS:INTERNAL=
+SNDFILE_LDFLAGS:INTERNAL=-lsndfile
+SNDFILE_LDFLAGS_OTHER:INTERNAL=
+SNDFILE_LIBDIR:INTERNAL=/usr/lib
+SNDFILE_LIBRARIES:INTERNAL=sndfile
+SNDFILE_LIBRARY_DIRS:INTERNAL=
+SNDFILE_LIBS:INTERNAL=
+SNDFILE_LIBS_L:INTERNAL=
+SNDFILE_LIBS_OTHER:INTERNAL=
+SNDFILE_LIBS_PATHS:INTERNAL=
+SNDFILE_PREFIX:INTERNAL=/usr
+SNDFILE_STATIC_CFLAGS:INTERNAL=
+SNDFILE_STATIC_CFLAGS_I:INTERNAL=
+SNDFILE_STATIC_CFLAGS_OTHER:INTERNAL=
+SNDFILE_STATIC_INCLUDE_DIRS:INTERNAL=
+SNDFILE_STATIC_LDFLAGS:INTERNAL=-lsndfile;-lFLAC;-lvorbisenc;-lvorbis;-lm;-logg
+SNDFILE_STATIC_LDFLAGS_OTHER:INTERNAL=
+SNDFILE_STATIC_LIBDIR:INTERNAL=
+SNDFILE_STATIC_LIBRARIES:INTERNAL=sndfile;FLAC;vorbisenc;vorbis;m;ogg
+SNDFILE_STATIC_LIBRARY_DIRS:INTERNAL=
+SNDFILE_STATIC_LIBS:INTERNAL=
+SNDFILE_STATIC_LIBS_L:INTERNAL=
+SNDFILE_STATIC_LIBS_OTHER:INTERNAL=
+SNDFILE_STATIC_LIBS_PATHS:INTERNAL=
+SNDFILE_VERSION:INTERNAL=1.0.25
+SNDFILE_sndfile_INCLUDEDIR:INTERNAL=
+SNDFILE_sndfile_LIBDIR:INTERNAL=
+SNDFILE_sndfile_PREFIX:INTERNAL=
+SNDFILE_sndfile_VERSION:INTERNAL=
+VORBIS_CFLAGS:INTERNAL=
+VORBIS_CFLAGS_I:INTERNAL=
+VORBIS_CFLAGS_OTHER:INTERNAL=
+VORBIS_FOUND:INTERNAL=1
+VORBIS_INCLUDEDIR:INTERNAL=/usr/include
+VORBIS_INCLUDE_DIRS:INTERNAL=
+VORBIS_LDFLAGS:INTERNAL=-lvorbisfile
+VORBIS_LDFLAGS_OTHER:INTERNAL=
+VORBIS_LIBDIR:INTERNAL=/usr/lib
+VORBIS_LIBRARIES:INTERNAL=vorbisfile
+VORBIS_LIBRARY_DIRS:INTERNAL=
+VORBIS_LIBS:INTERNAL=
+VORBIS_LIBS_L:INTERNAL=
+VORBIS_LIBS_OTHER:INTERNAL=
+VORBIS_LIBS_PATHS:INTERNAL=
+VORBIS_PREFIX:INTERNAL=/usr
+VORBIS_STATIC_CFLAGS:INTERNAL=
+VORBIS_STATIC_CFLAGS_I:INTERNAL=
+VORBIS_STATIC_CFLAGS_OTHER:INTERNAL=
+VORBIS_STATIC_INCLUDE_DIRS:INTERNAL=
+VORBIS_STATIC_LDFLAGS:INTERNAL=-lvorbisfile;-lvorbis;-lm;-logg
+VORBIS_STATIC_LDFLAGS_OTHER:INTERNAL=
+VORBIS_STATIC_LIBDIR:INTERNAL=
+VORBIS_STATIC_LIBRARIES:INTERNAL=vorbisfile;vorbis;m;ogg
+VORBIS_STATIC_LIBRARY_DIRS:INTERNAL=
+VORBIS_STATIC_LIBS:INTERNAL=
+VORBIS_STATIC_LIBS_L:INTERNAL=
+VORBIS_STATIC_LIBS_OTHER:INTERNAL=
+VORBIS_STATIC_LIBS_PATHS:INTERNAL=
+VORBIS_VERSION:INTERNAL=1.3.4
+VORBIS_vorbisfile_INCLUDEDIR:INTERNAL=
+VORBIS_vorbisfile_LIBDIR:INTERNAL=
+VORBIS_vorbisfile_PREFIX:INTERNAL=
+VORBIS_vorbisfile_VERSION:INTERNAL=
+//ADVANCED property for variable: X11_ICE_INCLUDE_PATH
+X11_ICE_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_ICE_LIB
+X11_ICE_LIB-ADVANCED:INTERNAL=1
+//Have library /usr/lib64/libX11.so;/usr/lib64/libXext.so
+X11_LIB_X11_SOLO:INTERNAL=1
+//ADVANCED property for variable: X11_SM_INCLUDE_PATH
+X11_SM_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_SM_LIB
+X11_SM_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_X11_INCLUDE_PATH
+X11_X11_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_X11_LIB
+X11_X11_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_XRes_INCLUDE_PATH
+X11_XRes_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_XRes_LIB
+X11_XRes_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_XShm_INCLUDE_PATH
+X11_XShm_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_XSync_INCLUDE_PATH
+X11_XSync_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_XTest_INCLUDE_PATH
+X11_XTest_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_XTest_LIB
+X11_XTest_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xaccessrules_INCLUDE_PATH
+X11_Xaccessrules_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xaccessstr_INCLUDE_PATH
+X11_Xaccessstr_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xau_INCLUDE_PATH
+X11_Xau_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xau_LIB
+X11_Xau_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xcomposite_INCLUDE_PATH
+X11_Xcomposite_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xcomposite_LIB
+X11_Xcomposite_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xcursor_INCLUDE_PATH
+X11_Xcursor_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xcursor_LIB
+X11_Xcursor_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xdamage_INCLUDE_PATH
+X11_Xdamage_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xdamage_LIB
+X11_Xdamage_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xdmcp_INCLUDE_PATH
+X11_Xdmcp_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xdmcp_LIB
+X11_Xdmcp_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xext_LIB
+X11_Xext_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xfixes_INCLUDE_PATH
+X11_Xfixes_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xfixes_LIB
+X11_Xfixes_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xft_INCLUDE_PATH
+X11_Xft_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xft_LIB
+X11_Xft_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xi_INCLUDE_PATH
+X11_Xi_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xi_LIB
+X11_Xi_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xinerama_INCLUDE_PATH
+X11_Xinerama_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xinerama_LIB
+X11_Xinerama_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xinput_INCLUDE_PATH
+X11_Xinput_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xinput_LIB
+X11_Xinput_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xkb_INCLUDE_PATH
+X11_Xkb_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xkbfile_INCLUDE_PATH
+X11_Xkbfile_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xkbfile_LIB
+X11_Xkbfile_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xkblib_INCLUDE_PATH
+X11_Xkblib_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xlib_INCLUDE_PATH
+X11_Xlib_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xmu_INCLUDE_PATH
+X11_Xmu_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xmu_LIB
+X11_Xmu_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xpm_INCLUDE_PATH
+X11_Xpm_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xpm_LIB
+X11_Xpm_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xrandr_INCLUDE_PATH
+X11_Xrandr_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xrandr_LIB
+X11_Xrandr_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xrender_INCLUDE_PATH
+X11_Xrender_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xrender_LIB
+X11_Xrender_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xscreensaver_INCLUDE_PATH
+X11_Xscreensaver_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xscreensaver_LIB
+X11_Xscreensaver_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xshape_INCLUDE_PATH
+X11_Xshape_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xt_INCLUDE_PATH
+X11_Xt_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xt_LIB
+X11_Xt_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xutil_INCLUDE_PATH
+X11_Xutil_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xv_INCLUDE_PATH
+X11_Xv_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xv_LIB
+X11_Xv_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xxf86misc_LIB
+X11_Xxf86misc_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_Xxf86vm_LIB
+X11_Xxf86vm_LIB-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_dpms_INCLUDE_PATH
+X11_dpms_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_xf86misc_INCLUDE_PATH
+X11_xf86misc_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: X11_xf86vmode_INCLUDE_PATH
+X11_xf86vmode_INCLUDE_PATH-ADVANCED:INTERNAL=1
+XINERAMA_CFLAGS:INTERNAL=
+XINERAMA_CFLAGS_I:INTERNAL=
+XINERAMA_CFLAGS_OTHER:INTERNAL=
+XINERAMA_FOUND:INTERNAL=1
+XINERAMA_INCLUDEDIR:INTERNAL=/usr/include
+XINERAMA_INCLUDE_DIRS:INTERNAL=
+XINERAMA_LDFLAGS:INTERNAL=-lXinerama
+XINERAMA_LDFLAGS_OTHER:INTERNAL=
+XINERAMA_LIBDIR:INTERNAL=/usr/lib
+XINERAMA_LIBRARIES:INTERNAL=Xinerama
+XINERAMA_LIBRARY_DIRS:INTERNAL=
+XINERAMA_LIBS:INTERNAL=
+XINERAMA_LIBS_L:INTERNAL=
+XINERAMA_LIBS_OTHER:INTERNAL=
+XINERAMA_LIBS_PATHS:INTERNAL=
+XINERAMA_PREFIX:INTERNAL=/usr
+XINERAMA_STATIC_CFLAGS:INTERNAL=
+XINERAMA_STATIC_CFLAGS_I:INTERNAL=
+XINERAMA_STATIC_CFLAGS_OTHER:INTERNAL=
+XINERAMA_STATIC_INCLUDE_DIRS:INTERNAL=
+XINERAMA_STATIC_LDFLAGS:INTERNAL=-lXinerama;-lXext;-lX11;-lpthread;-lxcb;-lXau;-lXdmcp
+XINERAMA_STATIC_LDFLAGS_OTHER:INTERNAL=
+XINERAMA_STATIC_LIBDIR:INTERNAL=
+XINERAMA_STATIC_LIBRARIES:INTERNAL=Xinerama;Xext;X11;pthread;xcb;Xau;Xdmcp
+XINERAMA_STATIC_LIBRARY_DIRS:INTERNAL=
+XINERAMA_STATIC_LIBS:INTERNAL=
+XINERAMA_STATIC_LIBS_L:INTERNAL=
+XINERAMA_STATIC_LIBS_OTHER:INTERNAL=
+XINERAMA_STATIC_LIBS_PATHS:INTERNAL=
+XINERAMA_VERSION:INTERNAL=1.1.3
+XINERAMA_xinerama_INCLUDEDIR:INTERNAL=
+XINERAMA_xinerama_LIBDIR:INTERNAL=
+XINERAMA_xinerama_PREFIX:INTERNAL=
+XINERAMA_xinerama_VERSION:INTERNAL=
 //Components requested for this build tree.
 _Boost_COMPONENTS_SEARCHED:INTERNAL=iostreams;log;log_setup;regex;system;thread
 //Last used Boost_INCLUDE_DIR value.
@@ -415,4 +1084,9 @@ _Boost_USE_MULTITHREADED_LAST:INTERNAL=ON
 _Boost_USE_STATIC_LIBS_LAST:INTERNAL=OFF
 //Last used Boost_USE_STATIC_RUNTIME value.
 _Boost_USE_STATIC_RUNTIME_LAST:INTERNAL=OFF
+__pkg_config_checked_PANGO:INTERNAL=1
+__pkg_config_checked_PANGOFT:INTERNAL=1
+__pkg_config_checked_SNDFILE:INTERNAL=1
+__pkg_config_checked_VORBIS:INTERNAL=1
+__pkg_config_checked_XINERAMA:INTERNAL=1
 

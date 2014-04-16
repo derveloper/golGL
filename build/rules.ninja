@@ -47,6 +47,24 @@ rule CXX_EXECUTABLE_LINKER_RSP_FILE
 
 
 #############################################
+# Rule for linking CXX static library.
+
+rule CXX_STATIC_LIBRARY_LINKER
+  command = $PRE_LINK && /usr/bin/cmake -E remove $out && /usr/bin/ar cr $out $LINK_FLAGS $in && /usr/bin/ranlib $out && $POST_BUILD
+  description = Linking CXX static library $out
+
+
+#############################################
+# Rule for linking CXX static library.
+
+rule CXX_STATIC_LIBRARY_LINKER_RSP_FILE
+  command = $PRE_LINK && /usr/bin/cmake -E remove $out && /usr/bin/ar cr $out $LINK_FLAGS @$RSP_FILE && /usr/bin/ranlib $out && $POST_BUILD
+  description = Linking CXX static library $out
+  rspfile = $RSP_FILE
+  rspfile_content = $in_newline  $LINK_PATH $LINK_LIBRARIES
+
+
+#############################################
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE

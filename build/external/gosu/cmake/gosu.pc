@@ -1,0 +1,10 @@
+prefix=/usr/local
+exec_prefix=/usr/local
+
+Name: gosu
+Description: gosu 2D game development library
+Version: 
+
+Requires:
+Libs: -Llib  -l;/usr/lib64/libopenal.so; -l;/usr/lib64/libSDL_ttf.so; -l;/usr/lib64/libSDLmain.a; -l;/usr/lib64/libSDL.so; -l;-lpthread; -l;/usr/lib64/libGLU.so; -l;/usr/lib64/libGL.so; -l;/usr/lib64/libSM.so; -l;/usr/lib64/libICE.so; -l;/usr/lib64/libX11.so; -l;/usr/lib64/libXext.so; -l;sndfile; -l;pango-1.0; -l;gobject-2.0; -l;glib-2.0; -l;pangoft2-1.0; -l;pango-1.0; -l;gobject-2.0; -l;glib-2.0; -l;fontconfig; -l;freetype; -l;/usr/lib64/libfreeimage.so; -l;Xinerama; -l;vorbisfile
+Cflags: -I/home/vileda/Projects/cpp/golGL/build/external/gosu/cmake/../../../include/Gosu/..

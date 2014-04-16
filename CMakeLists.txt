@@ -17,3 +17,6 @@ if(Boost_FOUND)
   add_executable(${PROJECT_NAME} ${SRC_LIST})
   target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
 endif()
+
+add_subdirectory(external/gosu/cmake)
+target_link_libraries(${PROJECT_NAME} gosu)
