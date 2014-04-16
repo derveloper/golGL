@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+   <FileVersion major="1" minor="6" />
+   <Project>
+      <Option title="golGL" />
+      <Option makefile_is_custom="1" />
+      <Option compiler="gcc" />
+      <Option virtualFolders="CMake Files\;" />
+      <Build>
+      <Target title="all">
+         <Option working_dir="/home/vileda/Projects/cpp/golGL/build" />
+         <Option type="4" />
+         <MakeCommands>
+            <Build command="/usr/bin/ninja -v all" />
+            <CompileFile command="/usr/bin/ninja -v &quot;$file&quot;" />
+            <Clean command="/usr/bin/ninja -v clean" />
+            <DistClean command="/usr/bin/ninja -v clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="golGL">
+         <Option output="/home/vileda/Projects/cpp/golGL/build/golGL" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/vileda/Projects/cpp/golGL/build" />
+         <Option object_output="./" />
+         <Option type="1" />
+         <Option compiler="gcc" />
+         <Compiler>
+            <Add option="-DBOOST_ALL_DYN_LINK" />
+            <Add directory="/usr/bin/../lib/clang/3.4/include" />
+            <Add directory="/usr/bin/../lib64/gcc/x86_64-unknown-linux-gnu/4.8.2/../../../../include/c++/4.8.2" />
+            <Add directory="/usr/bin/../lib64/gcc/x86_64-unknown-linux-gnu/4.8.2/../../../../include/c++/4.8.2/backward" />
+            <Add directory="/usr/bin/../lib64/gcc/x86_64-unknown-linux-gnu/4.8.2/../../../../include/c++/4.8.2/x86_64-unknown-linux-gnu" />
+            <Add directory="/usr/include" />
+            <Add directory="/usr/local/include" />
+         </Compiler>
+         <MakeCommands>
+            <Build command="/usr/bin/ninja -v golGL" />
+            <CompileFile command="/usr/bin/ninja -v &quot;$file&quot;" />
+            <Clean command="/usr/bin/ninja -v clean" />
+            <DistClean command="/usr/bin/ninja -v clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="golGL/fast">
+         <Option output="/home/vileda/Projects/cpp/golGL/build/golGL" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/vileda/Projects/cpp/golGL/build" />
+         <Option object_output="./" />
+         <Option type="1" />
+         <Option compiler="gcc" />
+         <Compiler>
+            <Add option="-DBOOST_ALL_DYN_LINK" />
+            <Add directory="/usr/bin/../lib/clang/3.4/include" />
+            <Add directory="/usr/bin/../lib64/gcc/x86_64-unknown-linux-gnu/4.8.2/../../../../include/c++/4.8.2" />
+            <Add directory="/usr/bin/../lib64/gcc/x86_64-unknown-linux-gnu/4.8.2/../../../../include/c++/4.8.2/backward" />
+            <Add directory="/usr/bin/../lib64/gcc/x86_64-unknown-linux-gnu/4.8.2/../../../../include/c++/4.8.2/x86_64-unknown-linux-gnu" />
+            <Add directory="/usr/include" />
+            <Add directory="/usr/local/include" />
+         </Compiler>
+         <MakeCommands>
+            <Build command="/usr/bin/ninja -v golGL/fast" />
+            <CompileFile command="/usr/bin/ninja -v &quot;$file&quot;" />
+            <Clean command="/usr/bin/ninja -v clean" />
+            <DistClean command="/usr/bin/ninja -v clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="rebuild_cache">
+         <Option working_dir="/home/vileda/Projects/cpp/golGL/build" />
+         <Option type="4" />
+         <MakeCommands>
+            <Build command="/usr/bin/ninja -v rebuild_cache" />
+            <CompileFile command="/usr/bin/ninja -v &quot;$file&quot;" />
+            <Clean command="/usr/bin/ninja -v clean" />
+            <DistClean command="/usr/bin/ninja -v clean" />
+         </MakeCommands>
+      </Target>
+      </Build>
+      <Unit filename="/home/vileda/Projects/cpp/golGL/main.cpp">
+      </Unit>
+      <Unit filename="/home/vileda/Projects/cpp/golGL/world.cpp">
+      </Unit>
+      <Unit filename="/home/vileda/Projects/cpp/golGL/world.hpp">
+      </Unit>
+      <Unit filename="/home/vileda/Projects/cpp/golGL/CMakeLists.txt">
+          <Option virtualFolder="CMake Files\" />
+      </Unit>
+   </Project>
+</CodeBlocks_project_file>
