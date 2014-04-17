@@ -1,2 +1,0 @@
-/home/vileda/Projects/cpp/golGL/build/external/gosu/cmake/CMakeFiles/GosuStatic.dir
-/home/vileda/Projects/cpp/golGL/build/CMakeFiles/golGL.dir

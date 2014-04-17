@@ -24,15 +24,27 @@ class world
 {
 public:
   cell_grid cells;
+  cell_grid last_gen;
   int width;
   int height;
+  int ratio_w;
+  int ratio_h;
+  int generation;
+  unsigned long last_dump;
+  std::string last_dump_str;
 
 public:
-  world(int width = 100, int height = 70);
+  world(const int &width = 100, const int &height = 70);
 
-  void seed_life();
+  void seed_life(const bool random = true);
+  void seed_life(cell_grid &seed);
   void next_generation();
-  int neighbours(int &x, int &y);
+  void evolution(const int &x, const int &y);
+  void dump_generation();
+  void load_generation(std::string filename);
+  unsigned long get_timestamp();
+  int const neighbours(const int &x, const int &y);
+  int const count_neighbours(const std::array<int,2> &ni, const int &x, const int &y);
 };
 
 #endif // WORLD_HPP
