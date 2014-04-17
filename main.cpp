@@ -18,8 +18,8 @@ public:
 
 public:
   GameWindow(int width, int height, int scale)
-    : Window(width, height, false),
-      w(graphics().width()/scale, graphics().height()/scale),
+    : Window(width*scale, height*scale, false),
+      w(width, height),
       font(graphics(), Gosu::defaultFontName(), 20)
   {
     setCaption(L"Game of Life");
