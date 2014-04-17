@@ -15,17 +15,23 @@ public:
   Gosu::Font font;
   bool evolution = false;
   bool paint_cell = false;
+  Gosu::Bitmap cells_bmp;
+  Gosu::Image cells_img;
+  int scale;
 
 public:
   GameWindow(int width, int height, int scale)
     : Window(width*scale, height*scale, false),
+      scale(scale),
       w(width, height),
-      font(graphics(), Gosu::defaultFontName(), 20)
+      font(graphics(), Gosu::defaultFontName(), 20),
+      cells_bmp(width, height),
+      cells_img(graphics(), cells_bmp)
   {
     setCaption(L"Game of Life");
     w.ratio_w = (graphics().width()/w.width);
     w.ratio_h = (graphics().height()/w.height);
-    needsCursor();
+    render_cells();
   }
 
   Gosu::Color const get_cell_color(const cell &c, const cell &cl) {
@@ -54,7 +60,7 @@ public:
       cell_vector &row_last = w.last_gen[x];
       for(auto y : boost::irange(0, w.height)) {
         Gosu::Color cell_color = get_cell_color(row[y], row_last[y]);
-        draw_cell(x,y,cell_color);
+        cells_bmp.setPixel(x, y, cell_color);
       }
     }
   }
@@ -67,15 +73,17 @@ public:
 
   void update()
   {
-    if(evolution)
+    if(evolution) {
       w.next_generation();
+      render_cells();
+    }
   }
 
   void draw()
   {
-    render_cells();
     draw_cell(input().mouseX()/w.ratio_w, input().mouseY()/w.ratio_h, Gosu::Color::GRAY);
     font.draw(L"gen: "+std::to_wstring(w.generation), 10, 10, 10);
+    cells_img.draw(0,0,1,scale,scale);
   }
 
   void buttonDown(Gosu::Button btn)
@@ -85,6 +93,7 @@ public:
     else if(btn == Gosu::kbSpace) {
       w.seed_life();
       w.generation = 0;
+      render_cells();
     }
     else if(btn == Gosu::kbE) {
       evolution = !evolution;
@@ -93,10 +102,12 @@ public:
       evolution = false;
       w.seed_life(false);
       w.generation = 0;
+      render_cells();
     }
     else if(btn == Gosu::kbS) {
       evolution = false;
       w.next_generation();
+      render_cells();
     }
     else if(btn == Gosu::kbD) {
       w.dump_generation();

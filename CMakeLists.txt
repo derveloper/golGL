@@ -2,10 +2,10 @@ project(golGL)
 cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
 
-set(CMAKE_CXX_FLAGS "-std=c++11 -O3 -DGOSU_CPP11_ENABLED")
+set(CMAKE_CXX_FLAGS "-std=c++11 -ggdb -DGOSU_CPP11_ENABLED")
 set(CMAKE_CXX_COMPILER "clang++")
 set(CMAKE_C_COMPILER "clang")
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
