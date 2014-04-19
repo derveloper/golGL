@@ -18,6 +18,7 @@ public:
   Gosu::Bitmap cells_bmp;
   Gosu::Image cells_img;
   int scale;
+  int generations = -1;
 
 public:
   GameWindow(int width, int height, int scale)
@@ -74,6 +75,10 @@ public:
 
   void update()
   {
+    if(generations > -1) {
+      if(generations <= w.generation)
+        close();
+    }
     if(evolution) {
       w.next_generation();
     }
@@ -89,36 +94,39 @@ public:
 
   void buttonDown(Gosu::Button btn)
   {
-    if (btn == Gosu::kbEscape)
+    switch (btn.id()) {
+    case Gosu::kbEscape:
       close();
-    else if(btn == Gosu::kbSpace) {
+      break;
+    case Gosu::kbSpace:
       w.seed_life();
       w.generation = 0;
       render_cells();
-    }
-    else if(btn == Gosu::kbE) {
+      break;
+    case Gosu::kbE:
       evolution = !evolution;
-    }
-    else if(btn == Gosu::kbC) {
+      break;
+    case Gosu::kbC:
       evolution = false;
       w.seed_life(false);
       w.generation = 0;
       render_cells();
-    }
-    else if(btn == Gosu::kbS) {
+      break;
+    case Gosu::kbS:
       evolution = false;
       w.next_generation();
       render_cells();
-    }
-    else if(btn == Gosu::kbD) {
+      break;
+    case Gosu::kbD:
       w.dump_generation();
-    }
-    else if(btn == Gosu::kbL) {
+      break;
+    case Gosu::kbL:
       w.load_generation("dump_"+w.last_dump_str+".gol");
-    }
-    else if(btn == Gosu::msLeft) {
+      break;
+    case Gosu::msLeft:
       toggle_cell();
       paint_cell = true;
+      break;
     }
   }
 
@@ -131,14 +139,19 @@ int main(int argc, char **argv)
 {
 
   if(argc < 4) {
-    std::cout << "usage: " << argv[0] << " <width> <height> <scale> [<filename>]" << std::endl;
+    std::cout << "usage: " << argv[0] << " <width> <height> <scale> [<filename>] [<generations>]" << std::endl;
     return -1;
   }
 
   GameWindow window(std::stoi(argv[1]),std::stoi(argv[2]),std::stoi(argv[3]));
 
-  if(argc == 5) {
+  if(argc >= 5) {
     window.w.load_generation(argv[4]);
+  }
+
+  if(argc >= 6) {
+    window.generations = std::stoi(argv[5]);
+    window.evolution = true;
   }
 
   window.show();
