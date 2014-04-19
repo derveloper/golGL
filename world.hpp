@@ -1,8 +1,8 @@
 #ifndef WORLD_HPP
 #define WORLD_HPP
 
-#include <vector>
 #include <random>
+#include <vector>
 
 struct cell {
   bool alive;

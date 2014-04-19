@@ -15,7 +15,7 @@ world::world(const int &width, const int &height)
     height(height),
     generation(0)
 {
-  random_gen r(0,20);
+  random_gen r(0,5);
   for(auto x : boost::irange(0, width)) {
     cell_vector row;
     for(auto y : boost::irange(0, height)) {
@@ -28,7 +28,7 @@ world::world(const int &width, const int &height)
 
 void world::seed_life(const bool random) {
   if(random) {
-    random_gen r(0,20);
+    random_gen r(0,5);
     for(auto &col : cells) {
       for(auto &cell : col) {
         cell.alive = (r.get() == 1);

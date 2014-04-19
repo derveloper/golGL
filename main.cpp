@@ -25,7 +25,7 @@ public:
       scale(scale),
       w(width, height),
       font(graphics(), Gosu::defaultFontName(), 20),
-      cells_bmp(width, height),
+      cells_bmp(width, height, Gosu::Color::WHITE),
       cells_img(graphics(), cells_bmp)
   {
     setCaption(L"Game of Life");
@@ -36,11 +36,11 @@ public:
 
   Gosu::Color const get_cell_color(const cell &c, const cell &cl) {
     if(c.alive /*&& cl.alive*/)
-      return Gosu::Color::WHITE;
+      return Gosu::Color::GREEN;
     if(c.alive && !cl.alive)
       return Gosu::Color::BLUE;
     if(!c.alive && cl.alive)
-      return Gosu::Color::GREEN;
+      return Gosu::Color::WHITE;
 
     return Gosu::Color::BLACK;
   }
@@ -51,7 +51,7 @@ public:
           (x*w.ratio_w)+w.ratio_w,y*w.ratio_h  ,cell_color,
           (x*w.ratio_w)+w.ratio_w,(y*w.ratio_h)+w.ratio_h,cell_color,
           x*w.ratio_w  ,(y*w.ratio_h)+w.ratio_h,cell_color,
-          0);
+          10);
   }
 
   void render_cells() {
@@ -63,6 +63,7 @@ public:
         cells_bmp.setPixel(x, y, cell_color);
       }
     }
+    cells_img.getData().insert(cells_bmp, 0, 0);
   }
 
   void toggle_cell() {
@@ -75,15 +76,15 @@ public:
   {
     if(evolution) {
       w.next_generation();
-      render_cells();
     }
+    render_cells();
   }
 
   void draw()
   {
+    cells_img.draw(0,0,0,scale,scale);
     draw_cell(input().mouseX()/w.ratio_w, input().mouseY()/w.ratio_h, Gosu::Color::GRAY);
-    font.draw(L"gen: "+std::to_wstring(w.generation), 10, 10, 10);
-    cells_img.draw(0,0,1,scale,scale);
+    font.draw(L"gen: "+std::to_wstring(w.generation), 10, 10, 10, 1, 1, Gosu::Color::GRAY);
   }
 
   void buttonDown(Gosu::Button btn)
