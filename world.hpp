@@ -3,6 +3,7 @@
 
 #include <random>
 #include <vector>
+#include <array>
 
 struct cell {
   bool alive;

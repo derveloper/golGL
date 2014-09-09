@@ -2,160 +2,181 @@
 
 #include <boost/range/irange.hpp>
 
-#include <Gosu/Gosu.hpp>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 
 #include "world.hpp"
 
 using namespace std;
 
-class GameWindow : public Gosu::Window
-{
+class GameWindow {
 public:
-  world w;
-  Gosu::Font font;
-  bool evolution = false;
-  bool paint_cell = false;
-  Gosu::Bitmap cells_bmp;
-  Gosu::Image cells_img;
-  int scale;
-  int generations = -1;
+    bool paint_cell = true;
+    SDL_Window *window;
+    SDL_Renderer *renderer;
+    SDL_Surface *surface;
+    SDL_Event event;
+    world w;
+    TTF_Font *font;
+    bool evolution = false;
+    SDL_Texture *cells_texture;
+    int scale;
+    int generations = -1;
 
 public:
-  GameWindow(int width, int height, int scale)
-    : Window(width*scale, height*scale, false),
-      scale(scale),
-      w(width, height),
-      font(graphics(), Gosu::defaultFontName(), 20),
-      cells_bmp(width, height, Gosu::Color::WHITE),
-      cells_img(graphics(), cells_bmp)
-  {
-    setCaption(L"Game of Life");
-    w.ratio_w = (graphics().width()/w.width);
-    w.ratio_h = (graphics().height()/w.height);
-    render_cells();
-  }
-
-  Gosu::Color const get_cell_color(const cell &c, const cell &cl) {
-    if(c.alive /*&& cl.alive*/)
-      return Gosu::Color::GREEN;
-    if(c.alive && !cl.alive)
-      return Gosu::Color::BLUE;
-    if(!c.alive && cl.alive)
-      return Gosu::Color::WHITE;
-
-    return Gosu::Color::BLACK;
-  }
-
-  void draw_cell(const int &x, const int &y, const Gosu::Color cell_color) {
-    graphics().drawQuad(
-          x*w.ratio_w  ,y*w.ratio_h  ,cell_color,
-          (x*w.ratio_w)+w.ratio_w,y*w.ratio_h  ,cell_color,
-          (x*w.ratio_w)+w.ratio_w,(y*w.ratio_h)+w.ratio_h,cell_color,
-          x*w.ratio_w  ,(y*w.ratio_h)+w.ratio_h,cell_color,
-          10);
-  }
-
-  void render_cells() {
-    for(auto x : boost::irange(0, w.width)) {
-      cell_vector &row = w.cells[x];
-      cell_vector &row_last = w.last_gen[x];
-      for(auto y : boost::irange(0, w.height)) {
-        Gosu::Color cell_color = get_cell_color(row[y], row_last[y]);
-        cells_bmp.setPixel(x, y, cell_color);
-      }
+    GameWindow(int width, int height, int scale)
+            :
+              scale(scale),
+              w(width, height)
+    {
+        SDL_Init(SDL_INIT_VIDEO);
+        window = SDL_CreateWindow("Game of Life", 0, 0, width*scale, height*scale, 0);
+        renderer = SDL_CreateRenderer(window, 0, SDL_RENDERER_ACCELERATED);
+        cells_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
+        font = TTF_OpenFont("Arial", 16);
+        surface = SDL_CreateRGBSurfaceFrom(NULL, width, height, 32, 0,
+                0x00FF0000,
+                0x0000FF00,
+                0x000000FF,
+                0xFF000000);
+        w.ratio_w = (width / w.width);
+        w.ratio_h = (height / w.height);
+        w.seed_life();
     }
-    cells_img.getData().insert(cells_bmp, 0, 0);
-  }
 
-  void toggle_cell() {
-    int x = input().mouseX()/w.ratio_w;
-    int y = input().mouseY()/w.ratio_h;
-    w.cells[x][y].alive = !w.cells[x][y].alive;
-  }
-
-  void update()
-  {
-    if(generations > -1) {
-      if(generations <= w.generation)
-        close();
+    void loop() {
+        while (paint_cell) {
+            handleEvents();
+            update();
+        }
     }
-    if(evolution) {
-      w.next_generation();
+
+    void handleEvents() {
+        while(SDL_PollEvent(&event)) {
+            switch (event.type) {
+                case SDL_KEYUP:
+                    buttonUp();
+                    break;
+                case SDL_KEYDOWN:
+                    buttonDown();
+                    break;
+                case SDL_MOUSEMOTION:
+                    //handleMouse();
+                    break;
+            }
+        }
     }
-    render_cells();
-  }
 
-  void draw()
-  {
-    cells_img.draw(0,0,0,scale,scale);
-    draw_cell(input().mouseX()/w.ratio_w, input().mouseY()/w.ratio_h, Gosu::Color::GRAY);
-    font.draw(L"gen: "+std::to_wstring(w.generation), 10, 10, 10, 1, 1, Gosu::Color::GRAY);
-  }
+    SDL_Color const get_cell_color(const cell &c, const cell &cl) {
+        if (c.alive /*&& cl.alive*/)
+            return SDL_Color{0, 255, 0, 0};
+        if (c.alive && !cl.alive)
+            return SDL_Color{0, 0, 255, 0};
+        if (!c.alive && cl.alive)
+            return SDL_Color{255, 255, 255, 0};
 
-  void buttonDown(Gosu::Button btn)
-  {
-    switch (btn.id()) {
-    case Gosu::kbEscape:
-      close();
-      break;
-    case Gosu::kbSpace:
-      w.seed_life();
-      w.generation = 0;
-      render_cells();
-      break;
-    case Gosu::kbE:
-      evolution = !evolution;
-      break;
-    case Gosu::kbC:
-      evolution = false;
-      w.seed_life(false);
-      w.generation = 0;
-      render_cells();
-      break;
-    case Gosu::kbS:
-      evolution = false;
-      w.next_generation();
-      render_cells();
-      break;
-    case Gosu::kbD:
-      w.dump_generation();
-      break;
-    case Gosu::kbL:
-      w.load_generation("dump_"+w.last_dump_str+".gol");
-      break;
-    case Gosu::msLeft:
-      toggle_cell();
-      paint_cell = true;
-      break;
+        return SDL_Color{0, 0, 0, 0};
     }
-  }
 
-  void buttonUp(Gosu::Button btn) {
-    paint_cell = false;
-  }
+    void render_cells() {
+        SDL_LockTexture(cells_texture, NULL,
+                &surface->pixels,
+                &surface->pitch);
+        Uint32 *p = (Uint32*)surface->pixels;
+        for (auto y : boost::irange(0, w.height)) {
+            for (auto x : boost::irange(0, w.width)) {
+                auto &c = w.cells[x][y];
+                auto &c_last = w.last_gen[x][y];
+                auto cell_color = get_cell_color(c, c_last);
+                *p++ = (0xFF000000|(cell_color.r<<16)|(cell_color.g<<8)|cell_color.b);
+            }
+        }
+        SDL_UnlockTexture(cells_texture);
+
+    }
+
+    void toggle_cell() {
+        int x = 1;//input().mouseX() / w.ratio_w;
+        int y = 1;//input().mouseY() / w.ratio_h;
+        w.cells[x][y].alive = !w.cells[x][y].alive;
+    }
+
+    void update() {
+        if (generations > -1) {
+            if (generations <= w.generation)
+                exit(generations);
+        }
+        if (evolution) {
+            w.next_generation();
+        }
+        render_cells();
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, cells_texture, NULL, NULL);
+        SDL_RenderPresent(renderer);
+    }
+
+    void buttonDown() {
+        switch (event.key.keysym.scancode) {
+            case SDL_SCANCODE_ESCAPE:
+                exit(0);
+            case SDL_SCANCODE_SPACE:
+                w.seed_life();
+                w.generation = 0;
+                //generations = -1;
+                render_cells();
+                break;
+            case SDL_SCANCODE_E:
+                evolution = !evolution;
+                break;
+            case SDL_SCANCODE_C:
+                evolution = false;
+                w.seed_life(false);
+                w.generation = 0;
+                render_cells();
+                break;
+            case SDL_SCANCODE_S:
+                evolution = false;
+                w.next_generation();
+                render_cells();
+                break;
+            case SDL_SCANCODE_D:
+                w.dump_generation();
+                break;
+            case SDL_SCANCODE_L:
+                w.load_generation("dump_" + w.last_dump_str + ".gol");
+                break;
+            case SDL_SCANCODE_LEFT:
+                toggle_cell();
+                paint_cell = true;
+                break;
+        }
+    }
+
+    void buttonUp() {
+        //paint_cell = true;
+    }
 };
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 
-  if(argc < 4) {
-    std::cout << "usage: " << argv[0] << " <width> <height> <scale> [<filename>] [<generations>]" << std::endl;
-    return -1;
-  }
+    if (argc < 4) {
+        std::cout << "usage: " << argv[0] << " <width> <height> <scale> [<filename>] [<generations>]" << std::endl;
+        return -1;
+    }
 
-  GameWindow window(std::stoi(argv[1]),std::stoi(argv[2]),std::stoi(argv[3]));
+    GameWindow window(std::stoi(argv[1]), std::stoi(argv[2]), std::stoi(argv[3]));
 
-  if(argc >= 5) {
-    window.w.load_generation(argv[4]);
-  }
+    if (argc >= 5) {
+        window.w.load_generation(argv[4]);
+    }
 
-  if(argc >= 6) {
-    window.generations = std::stoi(argv[5]);
-    window.evolution = true;
-  }
+    if (argc >= 6) {
+        window.generations = std::stoi(argv[5]);
+        window.evolution = true;
+    }
 
-  window.show();
+    window.loop();
 
-  return 0;
+    return 0;
 }
 
