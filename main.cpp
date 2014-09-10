@@ -9,6 +9,15 @@
 
 using namespace std;
 
+namespace Color {
+    static SDL_Color RED = SDL_Color{255, 0, 0, 0};
+    static SDL_Color GREEN = SDL_Color{0, 255, 0, 0};
+    static SDL_Color BLUE = SDL_Color{0, 0, 255, 0};
+    static SDL_Color BLACK = SDL_Color{0, 0, 0, 0};
+    static SDL_Color WHITE = SDL_Color{255, 255, 255, 0};
+    static SDL_Color TRANSPARENT = SDL_Color{0, 0, 0, 255};
+};
+
 class GameWindow {
 public:
     bool paint_cell = true;
@@ -22,6 +31,9 @@ public:
     SDL_Texture *cells_texture;
     int scale;
     int generations = -1;
+    Uint64 frames = 1;
+    Uint32 last_ticks;
+    string fps_text = "FPS: 0";
 
 public:
     GameWindow(int width, int height, int scale)
@@ -33,7 +45,8 @@ public:
         window = SDL_CreateWindow("Game of Life", 0, 0, width*scale, height*scale, 0);
         renderer = SDL_CreateRenderer(window, 0, SDL_RENDERER_ACCELERATED);
         cells_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
-        font = TTF_OpenFont("Arial", 16);
+        TTF_Init();
+        font = TTF_OpenFont("arial.ttf", 32);
         surface = SDL_CreateRGBSurfaceFrom(NULL, width, height, 32, 0,
                 0x00FF0000,
                 0x0000FF00,
@@ -42,6 +55,7 @@ public:
         w.ratio_w = (width / w.width);
         w.ratio_h = (height / w.height);
         w.seed_life();
+        last_ticks = SDL_GetTicks();
     }
 
     void loop() {
@@ -69,13 +83,13 @@ public:
 
     SDL_Color const get_cell_color(const cell &c, const cell &cl) {
         if (c.alive /*&& cl.alive*/)
-            return SDL_Color{0, 255, 0, 0};
+            return Color::GREEN;
         if (c.alive && !cl.alive)
-            return SDL_Color{0, 0, 255, 0};
+            return Color::WHITE;
         if (!c.alive && cl.alive)
-            return SDL_Color{255, 255, 255, 0};
+            return Color::BLUE;
 
-        return SDL_Color{0, 0, 0, 0};
+        return Color::BLACK;
     }
 
     void render_cells() {
@@ -112,7 +126,20 @@ public:
         render_cells();
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, cells_texture, NULL, NULL);
+        Uint32 delta = SDL_GetTicks() - last_ticks;
+        if(delta > 0 && frames > 300/delta) {
+            fps_text = "FPS: "+ to_string(1000.f/delta) + " - Generation: " + to_string(w.generation);
+            frames = 0;
+        }
+        SDL_Surface *text = TTF_RenderText_Shaded(font, fps_text.c_str(), Color::WHITE, Color::TRANSPARENT);
+        SDL_Texture *text_texture = SDL_CreateTextureFromSurface(renderer, text);
+        SDL_Rect text_pos{16,16,220,32};
+        SDL_RenderCopy(renderer, text_texture, NULL, &text_pos);
         SDL_RenderPresent(renderer);
+        frames++;
+        last_ticks = SDL_GetTicks();
+        SDL_DestroyTexture(text_texture);
+        SDL_FreeSurface(text);
     }
 
     void buttonDown() {
