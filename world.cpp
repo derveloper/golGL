@@ -8,6 +8,9 @@
 #include <boost/range/irange.hpp>
 
 #include "world.hpp"
+#include "random.hpp"
+
+#define THREADS 8
 
 
 world::world(const int &width, const int &height)
@@ -153,14 +156,4 @@ const int world::neighbours(const int &x, const int &y) {
   }
 
   return n;
-}
-
-random_gen::random_gen(int from, int to)
-  : rd(),
-    e(rd()),
-    uniform_dist(from,to)
-{ }
-
-int random_gen::get() {
-  return uniform_dist(e);
 }

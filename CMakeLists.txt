@@ -7,7 +7,7 @@ set(CMAKE_CXX_COMPILER "clang++")
 set(CMAKE_C_COMPILER "clang")
 set(CMAKE_BUILD_TYPE Debug)
 
-find_package(Boost 1.56.0 REQUIRED)
+find_package(Boost 1.55.0 REQUIRED COMPONENTS thread system)
 
 add_executable(${PROJECT_NAME} ${SRC_LIST})
 

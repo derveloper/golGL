@@ -1,9 +1,11 @@
 #ifndef WORLD_HPP
 #define WORLD_HPP
 
-#include <random>
 #include <vector>
 #include <array>
+
+#include <boost/thread.hpp>
+
 
 struct cell {
   bool alive;
@@ -11,15 +13,6 @@ struct cell {
 
 typedef std::vector<cell> cell_vector;
 typedef std::vector<cell_vector> cell_grid;
-
-class random_gen {
-  std::random_device rd;
-  std::mt19937 e;
-  std::uniform_int_distribution<int> uniform_dist;
-public:
-  random_gen(int from, int to);
-  int get();
-};
 
 class world
 {
@@ -33,6 +26,7 @@ public:
   int generation;
   unsigned long last_dump;
   std::string last_dump_str;
+  boost::thread_group tg;
 
 public:
   world(const int &width = 100, const int &height = 70);

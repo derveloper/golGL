@@ -1,27 +1,31 @@
 #include <iostream>
+#include <memory>
 
 #include <boost/range/irange.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
+#include "gif.h"
 #include "world.hpp"
+#include "random.hpp"
 
 using namespace std;
 
 namespace Color {
-    static SDL_Color RED = SDL_Color{255, 0, 0, 0};
-    static SDL_Color GREEN = SDL_Color{0, 255, 0, 0};
-    static SDL_Color BLUE = SDL_Color{0, 0, 255, 0};
-    static SDL_Color BLACK = SDL_Color{0, 0, 0, 0};
-    static SDL_Color WHITE = SDL_Color{255, 255, 255, 0};
-    static SDL_Color TRANSPARENT = SDL_Color{0, 0, 0, 255};
+    static const SDL_Color RED = SDL_Color{255, 0, 0, 0};
+    static const SDL_Color GREEN = SDL_Color{0, 255, 0, 0};
+    static const SDL_Color BLUE = SDL_Color{0, 0, 255, 0};
+    static const SDL_Color BLACK = SDL_Color{0, 0, 0, 0};
+    static const SDL_Color WHITE = SDL_Color{255, 255, 255, 0};
+    static const SDL_Color TRANSPARENT = SDL_Color{0, 0, 0, 255};
 };
 
 class GameWindow {
 public:
     bool paint_cell = true;
-    SDL_Window *window;
+    std::unique_ptr<SDL_Window> window;
     SDL_Renderer *renderer;
     SDL_Surface *surface;
     SDL_Event event;
@@ -34,16 +38,20 @@ public:
     Uint64 frames = 1;
     Uint32 last_ticks;
     string fps_text = "FPS: 0";
+    std::unique_ptr<random_gen> color_random;
+    SDL_Color current_color;
+    GifWriter gifWriter;
 
 public:
     GameWindow(int width, int height, int scale)
             :
               scale(scale),
-              w(width, height)
+              w(width, height),
+              color_random(std::unique_ptr<random_gen>(new random_gen(0,255)))
     {
         SDL_Init(SDL_INIT_VIDEO);
-        window = SDL_CreateWindow("Game of Life", 0, 0, width*scale, height*scale, 0);
-        renderer = SDL_CreateRenderer(window, 0, SDL_RENDERER_ACCELERATED);
+        window = std::unique_ptr<SDL_Window>(SDL_CreateWindow("Game of Life", 0, 0, width*scale, height*scale, 0));
+        renderer = SDL_CreateRenderer(window.get(), 0, SDL_RENDERER_ACCELERATED);
         cells_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
         TTF_Init();
         font = TTF_OpenFont("arial.ttf", 32);
@@ -56,6 +64,13 @@ public:
         w.ratio_h = (height / w.height);
         w.seed_life();
         last_ticks = SDL_GetTicks();
+        current_color = get_random_color();
+        GifBegin(&gifWriter, std::string("GoL_"+w.last_dump_str+".gif").c_str(), width, height, 24);
+    }
+
+    ~GameWindow() {
+      SDL_DestroyRenderer(renderer);
+      GifEnd(&gifWriter);
     }
 
     void loop() {
@@ -81,15 +96,28 @@ public:
         }
     }
 
-    SDL_Color const get_cell_color(const cell &c, const cell &cl) {
+    SDL_Color const get_cell_color(const cell &c, const cell &cl, bool random = true) {
+        if(random) {
+            if (c.alive /*&& cl.alive*/)
+                return current_color;
+            return Color::BLACK;
+        }
         if (c.alive /*&& cl.alive*/)
             return Color::GREEN;
         if (c.alive && !cl.alive)
-            return Color::WHITE;
+            return Color::BLACK;
         if (!c.alive && cl.alive)
-            return Color::BLUE;
+            return Color::BLACK;
 
         return Color::BLACK;
+    }
+
+    SDL_Color get_random_color() {
+        Uint8 r = boost::numeric_cast<uint8_t>(color_random->get());
+        Uint8 g = boost::numeric_cast<uint8_t>(color_random->get());
+        Uint8 b = boost::numeric_cast<uint8_t>(color_random->get());
+        Uint8 a = boost::numeric_cast<uint8_t>(color_random->get());
+        return SDL_Color{r,g,b,a};
     }
 
     void render_cells() {
@@ -97,16 +125,16 @@ public:
                 &surface->pixels,
                 &surface->pitch);
         Uint32 *p = (Uint32*)surface->pixels;
+
         for (auto y : boost::irange(0, w.height)) {
-            for (auto x : boost::irange(0, w.width)) {
-                auto &c = w.cells[x][y];
-                auto &c_last = w.last_gen[x][y];
-                auto cell_color = get_cell_color(c, c_last);
-                *p++ = (0xFF000000|(cell_color.r<<16)|(cell_color.g<<8)|cell_color.b);
-            }
+          for (auto x : boost::irange(0, w.width)) {
+            auto &c = w.cells[x][y];
+            auto &c_last = w.last_gen[x][y];
+            auto cell_color = get_cell_color(c, c_last);
+            *p++ = (0xFF000000|(cell_color.r<<16)|(cell_color.g<<8)|cell_color.b);
+          }
         }
         SDL_UnlockTexture(cells_texture);
-
     }
 
     void toggle_cell() {
@@ -136,6 +164,9 @@ public:
         SDL_Rect text_pos{16,16,220,32};
         SDL_RenderCopy(renderer, text_texture, NULL, &text_pos);
         SDL_RenderPresent(renderer);
+        if (evolution) {
+            GifWriteFrame(&gifWriter, (uint8_t*)surface->pixels, w.width, w.height, 0);
+        }
         frames++;
         last_ticks = SDL_GetTicks();
         SDL_DestroyTexture(text_texture);
@@ -149,7 +180,6 @@ public:
             case SDL_SCANCODE_SPACE:
                 w.seed_life();
                 w.generation = 0;
-                //generations = -1;
                 render_cells();
                 break;
             case SDL_SCANCODE_E:
@@ -165,12 +195,16 @@ public:
                 evolution = false;
                 w.next_generation();
                 render_cells();
+                GifWriteFrame(&gifWriter, (uint8_t*)surface->pixels, w.width, w.height, 1);
                 break;
             case SDL_SCANCODE_D:
                 w.dump_generation();
                 break;
             case SDL_SCANCODE_L:
                 w.load_generation("dump_" + w.last_dump_str + ".gol");
+                break;
+            case SDL_SCANCODE_R:
+                current_color = get_random_color();
                 break;
             case SDL_SCANCODE_LEFT:
                 toggle_cell();
@@ -193,11 +227,11 @@ int main(int argc, char **argv) {
 
     GameWindow window(std::stoi(argv[1]), std::stoi(argv[2]), std::stoi(argv[3]));
 
-    if (argc >= 5) {
+    if (argc > 4) {
         window.w.load_generation(argv[4]);
     }
 
-    if (argc >= 6) {
+    if (argc > 5) {
         window.generations = std::stoi(argv[5]);
         window.evolution = true;
     }
