@@ -1,8 +1,12 @@
 #include <iostream>
 #include <memory>
+#include <thread>
+#include <future>
 
 #include <boost/range/irange.hpp>
 #include <boost/numeric/conversion/cast.hpp>
+#include <boost/range/algorithm/for_each.hpp>
+#include <boost/program_options.hpp>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
@@ -12,6 +16,11 @@
 #include "random.hpp"
 
 using namespace std;
+namespace po = boost::program_options;
+
+
+template<typename Creator, typename Destructor, typename... Arguments>
+auto make_resource(Creator c, Destructor d, Arguments&&... args);
 
 namespace Color {
     static const SDL_Color RED = SDL_Color{255, 0, 0, 0};
@@ -22,17 +31,31 @@ namespace Color {
     static const SDL_Color TRANSPARENT = SDL_Color{0, 0, 0, 255};
 };
 
+struct SDL_Deleter {
+    void operator()(SDL_Window* w) const { SDL_DestroyWindow(w); }
+    void operator()(SDL_Renderer* r) const { SDL_DestroyRenderer(r); }
+    void operator()(SDL_Texture* t) const { SDL_DestroyTexture(t); }
+};
+
+namespace sdl2
+{
+    typedef std::unique_ptr<SDL_Window, SDL_Deleter> window_ptr_t;
+    typedef std::unique_ptr<SDL_Renderer, SDL_Deleter> renderer_ptr_t;
+    typedef std::unique_ptr<SDL_Texture, SDL_Deleter> texture_ptr_t;
+}
+
 class GameWindow {
 public:
     bool paint_cell = true;
-    std::unique_ptr<SDL_Window> window;
-    SDL_Renderer *renderer;
+    sdl2::window_ptr_t window;
+    sdl2::renderer_ptr_t renderer;
+    sdl2::texture_ptr_t cells_texture;
     SDL_Surface *surface;
     SDL_Event event;
     world w;
     TTF_Font *font;
     bool evolution = false;
-    SDL_Texture *cells_texture;
+    bool write_gif = false;
     int scale;
     int generations = -1;
     Uint64 frames = 1;
@@ -41,18 +64,25 @@ public:
     std::unique_ptr<random_gen> color_random;
     SDL_Color current_color;
     GifWriter gifWriter;
+    Uint32 delta = 0;
 
 public:
-    GameWindow(int width, int height, int scale)
+    GameWindow(int width, int height, int scale, bool write_gif)
             :
               scale(scale),
               w(width, height),
-              color_random(std::unique_ptr<random_gen>(new random_gen(0,255)))
+              write_gif(write_gif),
+              color_random(std::unique_ptr<random_gen>(new random_gen(0,255))),
+              window(std::move(SDL_CreateWindow("Game of Life", 0, 0, width*scale, height*scale, 0))),
+              renderer(std::move(SDL_CreateRenderer(window.get(), 0, SDL_RENDERER_ACCELERATED))),
+              cells_texture(std::move(SDL_CreateTexture(renderer.get(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height)))
     {
-        SDL_Init(SDL_INIT_VIDEO);
-        window = std::unique_ptr<SDL_Window>(SDL_CreateWindow("Game of Life", 0, 0, width*scale, height*scale, 0));
-        renderer = SDL_CreateRenderer(window.get(), 0, SDL_RENDERER_ACCELERATED);
-        cells_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
+        //window = std::unique_ptr<SDL_Window, SDL_Deleter>(std::move(SDL_CreateWindow("Game of Life", 0, 0, width*scale, height*scale, 0)));
+        //renderer = std::unique_ptr<SDL_Renderer, SDL_Deleter>(std::move(SDL_CreateRenderer(window.get(), 0, SDL_RENDERER_ACCELERATED)));
+        //renderer = std::move(sdl2::Renderer());
+        //window = make_resource(SDL_CreateWindow, SDL_DestroyWindow, "Game of Life", 0, 0, width*scale, height*scale, 0);
+        //renderer = make_resource(SDL_CreateRenderer, SDL_DestroyRenderer, window.get(), 0, SDL_RENDERER_ACCELERATED);
+        //cells_texture = SDL_CreateTexture(renderer.get(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
         TTF_Init();
         font = TTF_OpenFont("arial.ttf", 32);
         surface = SDL_CreateRGBSurfaceFrom(NULL, width, height, 32, 0,
@@ -65,12 +95,15 @@ public:
         w.seed_life();
         last_ticks = SDL_GetTicks();
         current_color = get_random_color();
-        GifBegin(&gifWriter, std::string("GoL_"+w.last_dump_str+".gif").c_str(), width, height, 24);
+        if(write_gif) {
+            GifBegin(&gifWriter, std::string("GoL_"+w.last_dump_str+".gif").c_str(), width, height, 24);
+        }
     }
 
     ~GameWindow() {
-      SDL_DestroyRenderer(renderer);
-      GifEnd(&gifWriter);
+        if(write_gif) {
+             GifEnd(&gifWriter);
+        }
     }
 
     void loop() {
@@ -121,20 +154,36 @@ public:
     }
 
     void render_cells() {
-        SDL_LockTexture(cells_texture, NULL,
+        SDL_LockTexture(cells_texture.get(), NULL,
                 &surface->pixels,
                 &surface->pitch);
         Uint32 *p = (Uint32*)surface->pixels;
 
-        for (auto y : boost::irange(0, w.height)) {
-          for (auto x : boost::irange(0, w.width)) {
-            auto &c = w.cells[x][y];
-            auto &c_last = w.last_gen[x][y];
-            auto cell_color = get_cell_color(c, c_last);
-            *p++ = (0xFF000000|(cell_color.r<<16)|(cell_color.g<<8)|cell_color.b);
-          }
-        }
-        SDL_UnlockTexture(cells_texture);
+        std::vector<std::future<void>> threads;
+
+        auto w_range = boost::irange(0, w.width);
+        auto h_range = boost::irange(0, w.height);
+        auto workers = boost::irange(0, 1);
+        auto const worker_load = w.cells.size()/(1);
+
+        boost::for_each(workers, [this, &threads, w_range, &worker_load, h_range, &p] (int worker) {
+            threads.push_back(std::async(std::launch::async , [this, &worker, &worker_load, w_range, h_range, &p] {
+                auto const start_w = worker*worker_load;
+                std::for_each(w_range.begin()+start_w, w_range.begin()+start_w+worker_load,
+                              [this, &worker, &worker_load, h_range, w_range, &p, start_w] (int x) {
+                  std::for_each(h_range.begin(), h_range.end(), [&] (int y) {
+                      auto &c = w.cells[x][y];
+                      auto &c_last = w.last_gen[x][y];
+                      auto cell_color = get_cell_color(c, c_last);
+                      p[(y*w.width+x)] = (0xFF000000|(cell_color.r<<16)|(cell_color.g<<8)|cell_color.b);
+                  });
+              });
+            }));
+        });
+
+        boost::for_each(threads, [] (auto &t) { t.get(); });
+
+        SDL_UnlockTexture(cells_texture.get());
     }
 
     void toggle_cell() {
@@ -144,6 +193,7 @@ public:
     }
 
     void update() {
+
         if (generations > -1) {
             if (generations <= w.generation)
                 exit(generations);
@@ -151,26 +201,35 @@ public:
         if (evolution) {
             w.next_generation();
         }
+
         render_cells();
-        SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, cells_texture, NULL, NULL);
-        Uint32 delta = SDL_GetTicks() - last_ticks;
+
+        SDL_RenderClear(renderer.get());
+        SDL_RenderCopy(renderer.get(), cells_texture.get(), NULL, NULL);
+
         if(delta > 0 && frames > 300/delta) {
             fps_text = "FPS: "+ to_string(1000.f/delta) + " - Generation: " + to_string(w.generation);
             frames = 0;
         }
+
         SDL_Surface *text = TTF_RenderText_Shaded(font, fps_text.c_str(), Color::WHITE, Color::TRANSPARENT);
-        SDL_Texture *text_texture = SDL_CreateTextureFromSurface(renderer, text);
+        SDL_Texture *text_texture = SDL_CreateTextureFromSurface(renderer.get(), text);
         SDL_Rect text_pos{16,16,220,32};
-        SDL_RenderCopy(renderer, text_texture, NULL, &text_pos);
-        SDL_RenderPresent(renderer);
-        if (evolution) {
+
+        SDL_RenderCopy(renderer.get(), text_texture, NULL, &text_pos);
+        SDL_RenderPresent(renderer.get());
+
+        if (evolution && write_gif) {
             GifWriteFrame(&gifWriter, (uint8_t*)surface->pixels, w.width, w.height, 0);
         }
+
         frames++;
-        last_ticks = SDL_GetTicks();
+
         SDL_DestroyTexture(text_texture);
         SDL_FreeSurface(text);
+
+        delta = SDL_GetTicks() - last_ticks;
+        last_ticks = SDL_GetTicks();
     }
 
     void buttonDown() {
@@ -220,19 +279,36 @@ public:
 
 int main(int argc, char **argv) {
 
-    if (argc < 4) {
-        std::cout << "usage: " << argv[0] << " <width> <height> <scale> [<filename>] [<generations>]" << std::endl;
-        return -1;
+    // Declare the supported options.
+    po::options_description desc("Allowed options");
+    desc.add_options()
+        ("help", "produce help message")
+        ("width,w", po::value<int>()->default_value(100), "set the width")
+        ("height,h", po::value<int>()->default_value(100), "set the height")
+        ("scale,s", po::value<int>()->default_value(1), "set pixel scale")
+        ("filename,f", po::value<std::string>(), "opens a gol file")
+        ("generations,g", po::value<int>(), "stop after given number of generations")
+        ("gif", "create gif")
+    ;
+
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+
+    if (vm.count("help")) {
+        cout << desc << "\n";
+        return 1;
     }
 
-    GameWindow window(std::stoi(argv[1]), std::stoi(argv[2]), std::stoi(argv[3]));
+    SDL_Init(SDL_INIT_VIDEO);
+    GameWindow window(vm["width"].as<int>(), vm["height"].as<int>(), vm["scale"].as<int>(), vm.count("gif"));
 
-    if (argc > 4) {
-        window.w.load_generation(argv[4]);
+    if (vm.count("filename")) {
+        window.w.load_generation(vm["filename"].as<std::string>());
     }
 
-    if (argc > 5) {
-        window.generations = std::stoi(argv[5]);
+    if (vm.count("generations")) {
+        window.generations = vm["generations"].as<int>();
         window.evolution = true;
     }
 

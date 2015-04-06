@@ -2,12 +2,12 @@ project(golGL)
 cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
 
-set(CMAKE_CXX_FLAGS "-std=c++11 -O3")
+set(CMAKE_CXX_FLAGS "-std=c++14 -O3")
 set(CMAKE_CXX_COMPILER "clang++")
 set(CMAKE_C_COMPILER "clang")
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
-find_package(Boost 1.55.0 REQUIRED COMPONENTS thread system)
+find_package(Boost 1.55.0 REQUIRED COMPONENTS thread system program_options)
 
 add_executable(${PROJECT_NAME} ${SRC_LIST})
 

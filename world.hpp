@@ -4,8 +4,7 @@
 #include <vector>
 #include <array>
 
-#include <boost/thread.hpp>
-
+constexpr const int THREADS = 4;
 
 struct cell {
   bool alive;
@@ -26,7 +25,6 @@ public:
   int generation;
   unsigned long last_dump;
   std::string last_dump_str;
-  boost::thread_group tg;
 
 public:
   world(const int &width = 100, const int &height = 70);

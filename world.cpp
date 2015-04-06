@@ -4,13 +4,13 @@
 #include <iostream>
 #include <random>
 #include <vector>
+#include <thread>
 
 #include <boost/range/irange.hpp>
+#include <boost/range/algorithm/for_each.hpp>
 
 #include "world.hpp"
 #include "random.hpp"
-
-#define THREADS 8
 
 
 world::world(const int &width, const int &height)
@@ -58,11 +58,26 @@ void world::seed_life(cell_grid &seed) {
 
 void world::next_generation() {
   last_gen = cells;
-  for(auto x : boost::irange(0, width)) {
-    for(auto y : boost::irange(0, height)) {
-      evolution(x, y);
-    }
-  }
+  std::vector<std::thread> threads;
+
+  auto w_range = boost::irange(0, width);
+  auto h_range = boost::irange(0, height);
+  auto workers = boost::irange(0, THREADS);
+  auto worker_load = cells.size()/THREADS;
+
+  boost::for_each(workers, [this, &threads, &worker_load, w_range, h_range] (int worker) {
+      auto start_w = worker*worker_load;
+      threads.push_back(std::thread([this, start_w, worker, worker_load, w_range, h_range] {
+        std::for_each(w_range.begin()+start_w, w_range.begin()+start_w+worker_load, [this, h_range] (int x) {
+            boost::for_each(h_range, [&] (int y) {
+                evolution(x, y);
+            });
+        });
+      }));
+  });
+
+  boost::for_each(threads, [] (auto &t) { t.join(); });
+
   generation++;
 }
 
@@ -149,11 +164,6 @@ const int world::neighbours(const int &x, const int &y) {
     {-1,-1}, {0,-1}, {1,-1}
   }};
 
-  int n = 0;
-
-  for(auto &ni : n_arr) {
-    n += count_neighbours(ni, x, y);
-  }
-
-  return n;
+  auto sum = [=](auto a, auto b) { return a + count_neighbours(b, x, y); };
+  return std::accumulate(n_arr.begin(), n_arr.end(), 0, sum);
 }
