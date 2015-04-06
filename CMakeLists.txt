@@ -5,7 +5,7 @@ aux_source_directory(. SRC_LIST)
 set(CMAKE_CXX_FLAGS "-std=c++14 -O3")
 set(CMAKE_CXX_COMPILER "clang++")
 set(CMAKE_C_COMPILER "clang")
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 find_package(Boost 1.55.0 REQUIRED COMPONENTS thread system program_options)
 

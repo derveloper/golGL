@@ -13,10 +13,11 @@
 #include "random.hpp"
 
 
-world::world(const int &width, const int &height)
+world::world(const int &width, const int &height, const int &threads)
   : width(width),
     height(height),
-    generation(0)
+    generation(0),
+    pool(threads)
 {
   random_gen r(0,5);
   for(auto x : boost::irange(0, width)) {
@@ -62,12 +63,12 @@ void world::next_generation() {
 
   auto w_range = boost::irange(0, width);
   auto h_range = boost::irange(0, height);
-  auto workers = boost::irange(0, THREADS);
-  auto worker_load = cells.size()/THREADS;
+  auto workers = boost::irange(0, (int)pool.workers.size());
+  auto worker_load = cells.size()/pool.workers.size();
 
   boost::for_each(workers, [this, &threads, &worker_load, w_range, h_range] (int worker) {
       auto start_w = worker*worker_load;
-      threads.push_back(std::thread([this, start_w, worker, worker_load, w_range, h_range] {
+      results.emplace_back(pool.enqueue([this, start_w, worker, worker_load, w_range, h_range] {
         std::for_each(w_range.begin()+start_w, w_range.begin()+start_w+worker_load, [this, h_range] (int x) {
             boost::for_each(h_range, [&] (int y) {
                 evolution(x, y);
@@ -76,7 +77,7 @@ void world::next_generation() {
       }));
   });
 
-  boost::for_each(threads, [] (auto &t) { t.join(); });
+  boost::for_each(results, [] (auto &t) { t.wait(); });
 
   generation++;
 }

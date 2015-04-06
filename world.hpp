@@ -4,7 +4,7 @@
 #include <vector>
 #include <array>
 
-constexpr const int THREADS = 4;
+#include "ThreadPool.h"
 
 struct cell {
   bool alive;
@@ -25,9 +25,11 @@ public:
   int generation;
   unsigned long last_dump;
   std::string last_dump_str;
+  ThreadPool pool;
+  std::vector< std::future<void> > results;
 
 public:
-  world(const int &width = 100, const int &height = 70);
+  world(const int &width = 100, const int &height = 70, const int &threads = 1);
 
   void seed_life(const bool random = true);
   void seed_life(cell_grid &seed);

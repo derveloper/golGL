@@ -11,6 +11,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
+#include "ThreadPool.h"
+
 #include "gif.h"
 #include "world.hpp"
 #include "random.hpp"
@@ -44,6 +46,7 @@ namespace sdl2
     typedef std::unique_ptr<SDL_Texture, SDL_Deleter> texture_ptr_t;
 }
 
+
 class GameWindow {
 public:
     bool paint_cell = true;
@@ -65,13 +68,16 @@ public:
     SDL_Color current_color;
     GifWriter gifWriter;
     Uint32 delta = 0;
+    ThreadPool pool;
+    std::vector< std::future<void> > results;
 
 public:
-    GameWindow(int width, int height, int scale, bool write_gif)
+    GameWindow(int width, int height, int scale, bool write_gif, const int &cpu_threads, const int &gpu_threads)
             :
               scale(scale),
-              w(width, height),
+              w(width, height, cpu_threads),
               write_gif(write_gif),
+              pool(gpu_threads),
               color_random(std::unique_ptr<random_gen>(new random_gen(0,255))),
               window(std::move(SDL_CreateWindow("Game of Life", 0, 0, width*scale, height*scale, 0))),
               renderer(std::move(SDL_CreateRenderer(window.get(), 0, SDL_RENDERER_ACCELERATED))),
@@ -163,11 +169,11 @@ public:
 
         auto w_range = boost::irange(0, w.width);
         auto h_range = boost::irange(0, w.height);
-        auto workers = boost::irange(0, 1);
-        auto const worker_load = w.cells.size()/(1);
+        auto workers = boost::irange(0, (int)pool.workers.size());
+        auto const worker_load = w.cells.size()/(pool.workers.size());
 
         boost::for_each(workers, [this, &threads, w_range, &worker_load, h_range, &p] (int worker) {
-            threads.push_back(std::async(std::launch::async , [this, &worker, &worker_load, w_range, h_range, &p] {
+            results.emplace_back(pool.enqueue([this, &worker, &worker_load, w_range, h_range, &p] {
                 auto const start_w = worker*worker_load;
                 std::for_each(w_range.begin()+start_w, w_range.begin()+start_w+worker_load,
                               [this, &worker, &worker_load, h_range, w_range, &p, start_w] (int x) {
@@ -181,7 +187,7 @@ public:
             }));
         });
 
-        boost::for_each(threads, [] (auto &t) { t.get(); });
+        boost::for_each(results, [] (auto &t) { t.wait(); });
 
         SDL_UnlockTexture(cells_texture.get());
     }
@@ -289,6 +295,8 @@ int main(int argc, char **argv) {
         ("filename,f", po::value<std::string>(), "opens a gol file")
         ("generations,g", po::value<int>(), "stop after given number of generations")
         ("gif", "create gif")
+        ("cpu-threads,c", po::value<int>()->default_value(1), "cpu threads")
+        ("gpu-threads,d", po::value<int>()->default_value(1), "gpu threads")
     ;
 
     po::variables_map vm;
@@ -301,7 +309,7 @@ int main(int argc, char **argv) {
     }
 
     SDL_Init(SDL_INIT_VIDEO);
-    GameWindow window(vm["width"].as<int>(), vm["height"].as<int>(), vm["scale"].as<int>(), vm.count("gif"));
+    GameWindow window(vm["width"].as<int>(), vm["height"].as<int>(), vm["scale"].as<int>(), vm.count("gif"), vm["cpu-threads"].as<int>(), vm["gpu-threads"].as<int>());
 
     if (vm.count("filename")) {
         window.w.load_generation(vm["filename"].as<std::string>());
