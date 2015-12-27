@@ -36,7 +36,7 @@ public:
   void next_generation();
   void evolution(const int &x, const int &y);
   void dump_generation();
-  void load_generation(std::string filename);
+  void load_generation(std::string filename, bool isBinary = true);
   unsigned long get_timestamp();
   int const neighbours(const int &x, const int &y);
   int const count_neighbours(const std::array<int,2> &ni, const int &x, const int &y);

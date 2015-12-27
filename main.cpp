@@ -7,6 +7,7 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/range/algorithm/for_each.hpp>
 #include <boost/program_options.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
@@ -59,6 +60,7 @@ public:
     sdl2::font_ptr_t font;
     bool evolution = false;
     bool write_gif = false;
+    bool write_out = false;
     int scale;
     int generations = -1;
     Uint64 frames = 1;
@@ -73,10 +75,11 @@ public:
     SDL_Rect text_pos{16,16,220,32};
 
 public:
-    GameWindow(int width, int height, int scale, bool write_gif, const int &cpu_threads, const int &gpu_threads)
+    GameWindow(int width, int height, int scale, bool write_gif, bool write_out, const int &cpu_threads, const int &gpu_threads)
             : scale(scale),
               w(width, height, cpu_threads),
               write_gif(write_gif),
+              write_out(write_out),
               pool(gpu_threads),
               color_random(new random_gen(0,255)),
               window(SDL_CreateWindow("Game of Life", 0, 0, width*scale, height*scale, 0), SDL_Deleter()),
@@ -136,16 +139,16 @@ public:
 
     SDL_Color const get_cell_color(const cell &c, const cell &cl, bool random = true) {
         if(random) {
-            if (c.alive /*&& cl.alive*/)
+            if (c.alive && cl.alive)
                 return current_color;
             return Color::BLACK;
         }
-        if (c.alive /*&& cl.alive*/)
+        if (c.alive && cl.alive)
             return Color::GREEN;
         if (c.alive && !cl.alive)
-            return Color::BLACK;
+            return Color::RED;
         if (!c.alive && cl.alive)
-            return Color::BLACK;
+            return Color::BLUE;
 
         return Color::BLACK;
     }
@@ -178,9 +181,13 @@ public:
                     std::for_each(h_range.begin(), h_range.end(), [&] (int y) {
                         auto &c = w.cells[x][y];
                         auto &c_last = w.last_gen[x][y];
-                        auto cell_color = get_cell_color(c, c_last);
+                        auto cell_color = get_cell_color(c, c_last, false);
                         ((Uint32*)(surface.get())->pixels)[(y*w.width+x)] =
                                 (0xFF000000|(cell_color.r<<16)|(cell_color.g<<8)|cell_color.b);
+                        if (write_out && evolution) {
+                            auto pixel = (cell_color.r<<16)|(cell_color.g<<8)|cell_color.b;
+                            fwrite(&pixel, 1, 3, stdout);
+                        }
                     });
                 }
             );
@@ -263,10 +270,11 @@ public:
                 render_cells();
                 break;
             case SDL_SCANCODE_S:
-                evolution = false;
+                evolution = true;
                 w.next_generation();
                 render_cells();
-                GifWriteFrame(&gifWriter, (uint8_t*)surface->pixels, w.width, w.height, 1);
+                if(write_gif) GifWriteFrame(&gifWriter, (uint8_t*)surface->pixels, w.width, w.height, 1);
+                evolution = false;
                 break;
             case SDL_SCANCODE_D:
                 w.dump_generation();
@@ -301,6 +309,7 @@ int main(int argc, char **argv) {
         ("filename,f", po::value<std::string>(), "opens a gol file")
         ("generations,g", po::value<int>(), "stop after given number of generations")
         ("gif", "create gif")
+        ("stdout", "write frame bytes to stdout")
         ("cpu-threads,c", po::value<int>()->default_value(1), "cpu threads")
         ("gpu-threads,d", po::value<int>()->default_value(1), "gpu threads")
     ;
@@ -322,12 +331,19 @@ int main(int argc, char **argv) {
             vm["height"].as<int>(),
             vm["scale"].as<int>(),
             (bool) vm.count("gif"),
+            (bool) vm.count("stdout"),
             vm["cpu-threads"].as<int>(),
             vm["gpu-threads"].as<int>()
     );
 
     if (vm.count("filename")) {
-        window.w.load_generation(vm["filename"].as<std::string>());
+        std::string filename = vm["filename"].as<std::string>();
+        if(boost::algorithm::ends_with(filename, ".gol")) {
+            window.w.load_generation(filename);
+        }
+        else {
+            window.w.load_generation(filename, false);
+        }
     }
 
     if (vm.count("generations")) {

@@ -105,16 +105,30 @@ void world::dump_generation() {
   }
 }
 
-void world::load_generation(std::string filename) {
-  std::ifstream dump(filename, std::ios::binary );
-  if(dump) {
-    std::string alive_str;
-    bool alive;
-    for(auto &col : cells) {
-      for(auto &cell : col) {
-        dump.read(&*alive_str.begin(), sizeof(alive));
-        alive = static_cast<bool>(alive_str[0]);
-        cell.alive = alive;
+void world::load_generation(std::string filename, bool isBinary) {
+  if(isBinary) {
+    std::ifstream dump(filename, std::ios::binary);
+    if(dump) {
+      std::string alive_str;
+      bool alive;
+      for(auto &col : cells) {
+        for(auto &cell : col) {
+          dump.read(&*alive_str.begin(), sizeof(alive));
+          alive = static_cast<bool>(alive_str[0]);
+          cell.alive = alive;
+        }
+      }
+    }
+  }
+  else {
+    std::ifstream dump(filename, std::ios::binary);
+    if(dump) {
+      char alive_char;
+      for(auto &col : cells) {
+        for(auto &cell : col) {
+          dump.read(&alive_char, sizeof(1));
+          cell.alive = alive_char == '0';
+        }
       }
     }
   }
