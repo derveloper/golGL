@@ -20,10 +20,6 @@
 using namespace std;
 namespace po = boost::program_options;
 
-
-template<typename Creator, typename Destructor, typename... Arguments>
-auto make_resource(Creator c, Destructor d, Arguments&&... args);
-
 namespace Color {
     static const SDL_Color RED = SDL_Color{255, 0, 0, 0};
     static const SDL_Color GREEN = SDL_Color{0, 255, 0, 0};
@@ -37,6 +33,8 @@ struct SDL_Deleter {
     void operator()(SDL_Window* w) const { SDL_DestroyWindow(w); }
     void operator()(SDL_Renderer* r) const { SDL_DestroyRenderer(r); }
     void operator()(SDL_Texture* t) const { SDL_DestroyTexture(t); }
+    void operator()(SDL_Surface* t) const { SDL_FreeSurface(t); }
+    void operator()(TTF_Font* t) const { TTF_CloseFont(t); }
 };
 
 namespace sdl2
@@ -44,6 +42,8 @@ namespace sdl2
     typedef std::unique_ptr<SDL_Window, SDL_Deleter> window_ptr_t;
     typedef std::unique_ptr<SDL_Renderer, SDL_Deleter> renderer_ptr_t;
     typedef std::unique_ptr<SDL_Texture, SDL_Deleter> texture_ptr_t;
+    typedef std::unique_ptr<SDL_Surface, SDL_Deleter> surface_ptr_t;
+    typedef std::unique_ptr<TTF_Font, SDL_Deleter> font_ptr_t;
 }
 
 
@@ -53,10 +53,10 @@ public:
     sdl2::window_ptr_t window;
     sdl2::renderer_ptr_t renderer;
     sdl2::texture_ptr_t cells_texture;
-    SDL_Surface *surface;
+    sdl2::surface_ptr_t surface;
     SDL_Event event;
     world w;
-    TTF_Font *font;
+    sdl2::font_ptr_t font;
     bool evolution = false;
     bool write_gif = false;
     int scale;
@@ -67,35 +67,34 @@ public:
     std::unique_ptr<random_gen> color_random;
     SDL_Color current_color;
     GifWriter gifWriter;
-    Uint32 delta = 0;
+    Uint32 delta = 1;
     ThreadPool pool;
     std::vector< std::future<void> > results;
+    SDL_Rect text_pos{16,16,220,32};
 
 public:
     GameWindow(int width, int height, int scale, bool write_gif, const int &cpu_threads, const int &gpu_threads)
-            :
-              scale(scale),
+            : scale(scale),
               w(width, height, cpu_threads),
               write_gif(write_gif),
               pool(gpu_threads),
-              color_random(std::unique_ptr<random_gen>(new random_gen(0,255))),
-              window(std::move(SDL_CreateWindow("Game of Life", 0, 0, width*scale, height*scale, 0))),
-              renderer(std::move(SDL_CreateRenderer(window.get(), 0, SDL_RENDERER_ACCELERATED))),
-              cells_texture(std::move(SDL_CreateTexture(renderer.get(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height)))
+              color_random(new random_gen(0,255)),
+              window(SDL_CreateWindow("Game of Life", 0, 0, width*scale, height*scale, 0), SDL_Deleter()),
+              surface(SDL_CreateRGBSurfaceFrom(NULL, width, height, 32, 0,
+                                               0x00FF0000,
+                                               0x0000FF00,
+                                               0x000000FF,
+                                               0xFF000000), SDL_Deleter()),
+              renderer(SDL_CreateRenderer(window.get(), 0, SDL_RENDERER_ACCELERATED), SDL_Deleter()),
+              cells_texture(SDL_CreateTexture(
+                renderer.get(),
+                SDL_PIXELFORMAT_ARGB8888,
+                SDL_TEXTUREACCESS_STREAMING,
+                width,
+                height),
+                SDL_Deleter()),
+              font(TTF_OpenFont("arial.ttf", 32), SDL_Deleter())
     {
-        //window = std::unique_ptr<SDL_Window, SDL_Deleter>(std::move(SDL_CreateWindow("Game of Life", 0, 0, width*scale, height*scale, 0)));
-        //renderer = std::unique_ptr<SDL_Renderer, SDL_Deleter>(std::move(SDL_CreateRenderer(window.get(), 0, SDL_RENDERER_ACCELERATED)));
-        //renderer = std::move(sdl2::Renderer());
-        //window = make_resource(SDL_CreateWindow, SDL_DestroyWindow, "Game of Life", 0, 0, width*scale, height*scale, 0);
-        //renderer = make_resource(SDL_CreateRenderer, SDL_DestroyRenderer, window.get(), 0, SDL_RENDERER_ACCELERATED);
-        //cells_texture = SDL_CreateTexture(renderer.get(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
-        TTF_Init();
-        font = TTF_OpenFont("arial.ttf", 32);
-        surface = SDL_CreateRGBSurfaceFrom(NULL, width, height, 32, 0,
-                0x00FF0000,
-                0x0000FF00,
-                0x000000FF,
-                0xFF000000);
         w.ratio_w = (width / w.width);
         w.ratio_h = (height / w.height);
         w.seed_life();
@@ -161,9 +160,8 @@ public:
 
     void render_cells() {
         SDL_LockTexture(cells_texture.get(), NULL,
-                &surface->pixels,
-                &surface->pitch);
-        Uint32 *p = (Uint32*)surface->pixels;
+                &(surface.get())->pixels,
+                &(surface.get())->pitch);
 
         std::vector<std::future<void>> threads;
 
@@ -172,19 +170,24 @@ public:
         auto workers = boost::irange(0, (int)pool.workers.size());
         auto const worker_load = w.cells.size()/(pool.workers.size());
 
-        boost::for_each(workers, [this, &threads, w_range, &worker_load, h_range, &p] (int worker) {
-            results.emplace_back(pool.enqueue([this, &worker, &worker_load, w_range, h_range, &p] {
-                auto const start_w = worker*worker_load;
-                std::for_each(w_range.begin()+start_w, w_range.begin()+start_w+worker_load,
-                              [this, &worker, &worker_load, h_range, w_range, &p, start_w] (int x) {
-                  std::for_each(h_range.begin(), h_range.end(), [&] (int y) {
-                      auto &c = w.cells[x][y];
-                      auto &c_last = w.last_gen[x][y];
-                      auto cell_color = get_cell_color(c, c_last);
-                      p[(y*w.width+x)] = (0xFF000000|(cell_color.r<<16)|(cell_color.g<<8)|cell_color.b);
-                  });
-              });
-            }));
+        auto render_task = [this, &worker_load, w_range, h_range] (auto &worker) {
+            auto const start_w = worker*worker_load;
+            std::for_each(
+                w_range.begin()+start_w, w_range.begin()+start_w+worker_load,
+                [this, &worker, &worker_load, h_range, w_range, start_w] (int x) {
+                    std::for_each(h_range.begin(), h_range.end(), [&] (int y) {
+                        auto &c = w.cells[x][y];
+                        auto &c_last = w.last_gen[x][y];
+                        auto cell_color = get_cell_color(c, c_last);
+                        ((Uint32*)(surface.get())->pixels)[(y*w.width+x)] =
+                                (0xFF000000|(cell_color.r<<16)|(cell_color.g<<8)|cell_color.b);
+                    });
+                }
+            );
+        };
+
+        boost::for_each(workers, [this, &render_task, &threads, w_range, &worker_load, h_range] (int worker) {
+            results.emplace_back(pool.enqueue(render_task, worker));
         });
 
         boost::for_each(results, [] (auto &t) { t.wait(); });
@@ -213,30 +216,33 @@ public:
         SDL_RenderClear(renderer.get());
         SDL_RenderCopy(renderer.get(), cells_texture.get(), NULL, NULL);
 
-        if(delta > 0 && frames > 300/delta) {
+        auto const fps = calc_fps();
+        if(frames > fps) {
             fps_text = "FPS: "+ to_string(1000.f/delta) + " - Generation: " + to_string(w.generation);
-            frames = 0;
+            frames = 1;
         }
 
-        SDL_Surface *text = TTF_RenderText_Shaded(font, fps_text.c_str(), Color::WHITE, Color::TRANSPARENT);
-        SDL_Texture *text_texture = SDL_CreateTextureFromSurface(renderer.get(), text);
-        SDL_Rect text_pos{16,16,220,32};
+        sdl2::surface_ptr_t text(
+                TTF_RenderText_Shaded(font.get(), fps_text.c_str(), Color::WHITE, Color::TRANSPARENT),
+                SDL_Deleter());
+        sdl2::texture_ptr_t text_texture(
+                SDL_CreateTextureFromSurface(renderer.get(), text.get()),
+                SDL_Deleter());
 
-        SDL_RenderCopy(renderer.get(), text_texture, NULL, &text_pos);
+        SDL_RenderCopy(renderer.get(), text_texture.get(), NULL, &text_pos);
         SDL_RenderPresent(renderer.get());
 
         if (evolution && write_gif) {
-            GifWriteFrame(&gifWriter, (uint8_t*)surface->pixels, w.width, w.height, 0);
+            GifWriteFrame(&gifWriter, (uint8_t*)surface.get()->pixels, (uint32_t) w.width, (uint32_t) w.height, 0);
         }
 
         frames++;
 
-        SDL_DestroyTexture(text_texture);
-        SDL_FreeSurface(text);
-
         delta = SDL_GetTicks() - last_ticks;
         last_ticks = SDL_GetTicks();
     }
+
+    inline Uint32 calc_fps() { return (48/(delta +1)); }
 
     void buttonDown() {
         switch (event.key.keysym.scancode) {
@@ -309,7 +315,16 @@ int main(int argc, char **argv) {
     }
 
     SDL_Init(SDL_INIT_VIDEO);
-    GameWindow window(vm["width"].as<int>(), vm["height"].as<int>(), vm["scale"].as<int>(), vm.count("gif"), vm["cpu-threads"].as<int>(), vm["gpu-threads"].as<int>());
+    TTF_Init();
+
+    GameWindow window(
+            vm["width"].as<int>(),
+            vm["height"].as<int>(),
+            vm["scale"].as<int>(),
+            (bool) vm.count("gif"),
+            vm["cpu-threads"].as<int>(),
+            vm["gpu-threads"].as<int>()
+    );
 
     if (vm.count("filename")) {
         window.w.load_generation(vm["filename"].as<std::string>());
@@ -321,6 +336,8 @@ int main(int argc, char **argv) {
     }
 
     window.loop();
+
+    SDL_Quit();
 
     return 0;
 }
