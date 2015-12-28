@@ -94,7 +94,7 @@ void world::next_generation() {
 
   if(lastGenEqual && allCellsEqual) {
     cellsEqualGenerations++;
-    if(cellsEqualGenerations > 60) {
+    if(cellsEqualGenerations > 20) {
       seed_life();
       cellsEqualGenerations = 0;
     }

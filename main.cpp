@@ -66,6 +66,7 @@ public:
     bool random_colors = false;
     int scale;
     int generations = -1;
+    double speed_factor = 1;
     Uint64 frames = 1;
     Uint32 last_ticks;
     string fps_text = "FPS: 0";
@@ -227,7 +228,7 @@ public:
         }
         if (evolution) {
             w.next_generation();
-            usleep(60000);
+            usleep(60000*speed_factor);
         }
 
         render_cells();
@@ -304,6 +305,12 @@ public:
                 break;
             case SDL_SCANCODE_O:
                 random_colors = !random_colors;
+                break;
+            case SDL_SCANCODE_K:
+                speed_factor += 0.1;
+                break;
+            case SDL_SCANCODE_J:
+                speed_factor -= 0.1;
                 break;
             case SDL_SCANCODE_LEFT:
                 toggle_cell();
