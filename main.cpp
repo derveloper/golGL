@@ -225,7 +225,7 @@ public:
         }
         if (evolution) {
             w.next_generation();
-            usleep(50000);
+            usleep(60000);
         }
 
         render_cells();

@@ -86,19 +86,22 @@ void world::next_generation() {
   bool allCellsEqual = false;
   for(auto x : w_range) {
     for(auto y : h_range) {
-      allCellsEqual = cells[x][y].alive == last_last_gen[x][y].alive;
+      allCellsEqual = (
+              (cells[x][y].alive == last_last_gen[x][y].alive)
+              || (cells[x][y].alive == last_gen[x][y].alive)
+      );
       if(!allCellsEqual) break;
     }
   }
 
-  if(lastGenEqual) {
+  if(lastGenEqual && allCellsEqual) {
     cellsEqualGenerations++;
   }
   else {
     cellsEqualGenerations = 0;
   }
 
-  if(cellsEqualGenerations > 50) {
+  if(cellsEqualGenerations > 60 && allCellsEqual) {
     seed_life();
     cellsEqualGenerations = 0;
   }
