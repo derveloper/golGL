@@ -123,11 +123,12 @@ void world::load_generation(std::string filename, bool isBinary) {
   else {
     std::ifstream dump(filename, std::ios::binary);
     if(dump) {
-      char alive_char;
-      for(auto &col : cells) {
-        for(auto &cell : col) {
-          dump.read(&alive_char, sizeof(1));
-          cell.alive = alive_char == '0';
+      for(auto y : boost::irange(0, height)) {
+        for(auto x : boost::irange(0, width)) {
+          char alive_char;
+          dump.read(&alive_char, 1);
+          if(alive_char == '\n') dump.read(&alive_char, 1);
+          cells[x][y].alive = alive_char == '0';
         }
       }
     }

@@ -26,6 +26,7 @@ namespace Color {
     static const SDL_Color GREEN = SDL_Color{0, 255, 0, 0};
     static const SDL_Color BLUE = SDL_Color{0, 0, 255, 0};
     static const SDL_Color BLACK = SDL_Color{0, 0, 0, 0};
+    static const SDL_Color YELLOW = SDL_Color{255, 255, 0, 0};
     static const SDL_Color WHITE = SDL_Color{255, 255, 255, 0};
     static const SDL_Color TRANSPARENT = SDL_Color{0, 0, 0, 255};
 };
@@ -184,10 +185,6 @@ public:
                         auto cell_color = get_cell_color(c, c_last, false);
                         ((Uint32*)(surface.get())->pixels)[(y*w.width+x)] =
                                 (0xFF000000|(cell_color.r<<16)|(cell_color.g<<8)|cell_color.b);
-                        if (write_out && evolution) {
-                            auto pixel = (cell_color.r<<16)|(cell_color.g<<8)|cell_color.b;
-                            fwrite(&pixel, 1, 3, stdout);
-                        }
                     });
                 }
             );
@@ -200,6 +197,18 @@ public:
         boost::for_each(results, [] (auto &t) { t.wait(); });
 
         SDL_UnlockTexture(cells_texture.get());
+
+        if(write_out && evolution) {
+            int nullbytes = 0x00000000;
+            //fwrite(&nullbytes, 1, 3, stdout);
+            Uint32 *pixels = (Uint32*)surface.get()->pixels;
+            for(int b = 0; b < w.height*w.width; b++) {
+                int pixel = *(pixels+b);
+                fwrite(&pixel, 1, 3, stdout);
+            }
+            //fwrite(&nullbytes, 1, 3, stdout);
+            fflush(stdout);
+        }
     }
 
     void toggle_cell() {
@@ -216,6 +225,7 @@ public:
         }
         if (evolution) {
             w.next_generation();
+            usleep(50000);
         }
 
         render_cells();
@@ -274,6 +284,11 @@ public:
                 w.next_generation();
                 render_cells();
                 if(write_gif) GifWriteFrame(&gifWriter, (uint8_t*)surface->pixels, w.width, w.height, 1);
+                evolution = false;
+                break;
+            case SDL_SCANCODE_P:
+                evolution = true;
+                render_cells();
                 evolution = false;
                 break;
             case SDL_SCANCODE_D:
