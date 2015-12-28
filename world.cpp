@@ -3,8 +3,6 @@
 #include <future>
 #include <iostream>
 #include <random>
-#include <vector>
-#include <thread>
 
 #include <boost/range/irange.hpp>
 #include <boost/range/algorithm/for_each.hpp>
@@ -16,6 +14,8 @@
 world::world(const int &width, const int &height, const int &threads)
   : width(width),
     height(height),
+    cellsEqualGenerations(0),
+    lastGenEqual(false),
     generation(0),
     pool(threads)
 {
@@ -27,6 +27,7 @@ world::world(const int &width, const int &height, const int &threads)
     }
     cells.push_back(row);
   }
+  last_last_gen = cells;
   last_gen = cells;
 }
 
@@ -46,6 +47,7 @@ void world::seed_life(const bool random) {
       }
     }
   }
+  last_last_gen = cells;
   last_gen = cells;
 }
 
@@ -58,6 +60,7 @@ void world::seed_life(cell_grid &seed) {
 }
 
 void world::next_generation() {
+  last_last_gen = last_gen;
   last_gen = cells;
   std::vector<std::thread> threads;
 
@@ -80,6 +83,27 @@ void world::next_generation() {
   boost::for_each(results, [] (auto &t) { t.wait(); });
 
   generation++;
+  bool allCellsEqual = false;
+  for(auto x : w_range) {
+    for(auto y : h_range) {
+      allCellsEqual = cells[x][y].alive == last_last_gen[x][y].alive;
+      if(!allCellsEqual) break;
+    }
+  }
+
+  if(lastGenEqual) {
+    cellsEqualGenerations++;
+  }
+  else {
+    cellsEqualGenerations = 0;
+  }
+
+  if(cellsEqualGenerations > 50) {
+    seed_life();
+    cellsEqualGenerations = 0;
+  }
+
+  lastGenEqual = allCellsEqual;
 }
 
 void world::evolution(const int &x, const int &y) {

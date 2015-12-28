@@ -18,6 +18,9 @@ class world
 public:
   cell_grid cells;
   cell_grid last_gen;
+  cell_grid last_last_gen;
+  int cellsEqualGenerations;
+  bool lastGenEqual;
   int width;
   int height;
   int ratio_w;
