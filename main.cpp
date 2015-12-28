@@ -27,6 +27,7 @@ namespace Color {
     static const SDL_Color BLUE = SDL_Color{0, 0, 255, 0};
     static const SDL_Color BLACK = SDL_Color{0, 0, 0, 0};
     static const SDL_Color YELLOW = SDL_Color{255, 255, 0, 0};
+    static const SDL_Color DARKLBUE = SDL_Color{0, 0, 30, 0};
     static const SDL_Color WHITE = SDL_Color{255, 255, 255, 0};
     static const SDL_Color TRANSPARENT = SDL_Color{0, 0, 0, 255};
 };
@@ -62,6 +63,7 @@ public:
     bool evolution = false;
     bool write_gif = false;
     bool write_out = false;
+    bool random_colors = false;
     int scale;
     int generations = -1;
     Uint64 frames = 1;
@@ -140,18 +142,18 @@ public:
 
     SDL_Color const get_cell_color(const cell &c, const cell &cl, bool random = true) {
         if(random) {
-            if (c.alive && cl.alive)
+            if (c.alive)
                 return current_color;
             return Color::BLACK;
         }
         if (c.alive && cl.alive)
             return Color::GREEN;
         if (c.alive && !cl.alive)
-            return Color::RED;
-        if (!c.alive && cl.alive)
             return Color::BLUE;
+        if (!c.alive && cl.alive)
+            return Color::RED;
 
-        return Color::BLACK;
+        return Color::DARKLBUE;
     }
 
     SDL_Color get_random_color() {
@@ -182,7 +184,7 @@ public:
                     std::for_each(h_range.begin(), h_range.end(), [&] (int y) {
                         auto &c = w.cells[x][y];
                         auto &c_last = w.last_gen[x][y];
-                        auto cell_color = get_cell_color(c, c_last, false);
+                        auto cell_color = get_cell_color(c, c_last, random_colors);
                         ((Uint32*)(surface.get())->pixels)[(y*w.width+x)] =
                                 (0xFF000000|(cell_color.r<<16)|(cell_color.g<<8)|cell_color.b);
                     });
@@ -299,6 +301,9 @@ public:
                 break;
             case SDL_SCANCODE_R:
                 current_color = get_random_color();
+                break;
+            case SDL_SCANCODE_O:
+                random_colors = !random_colors;
                 break;
             case SDL_SCANCODE_LEFT:
                 toggle_cell();

@@ -86,25 +86,21 @@ void world::next_generation() {
   bool allCellsEqual = false;
   for(auto x : w_range) {
     for(auto y : h_range) {
-      allCellsEqual = (
-              (cells[x][y].alive == last_last_gen[x][y].alive)
-              || (cells[x][y].alive == last_gen[x][y].alive)
-      );
+      allCellsEqual = cells[x][y].alive == last_last_gen[x][y].alive;
       if(!allCellsEqual) break;
     }
+    if(!allCellsEqual) break;
   }
 
   if(lastGenEqual && allCellsEqual) {
     cellsEqualGenerations++;
-  }
-  else {
-    cellsEqualGenerations = 0;
+    if(cellsEqualGenerations > 60) {
+      seed_life();
+      cellsEqualGenerations = 0;
+    }
   }
 
-  if(cellsEqualGenerations > 60 && allCellsEqual) {
-    seed_life();
-    cellsEqualGenerations = 0;
-  }
+  if(!allCellsEqual) cellsEqualGenerations = 0;
 
   lastGenEqual = allCellsEqual;
 }
@@ -177,20 +173,20 @@ int const world::count_neighbours(const std::array<int,2> &ni, const int &x, con
 
   if(nx == width) {
     nx = 0;
-    return 0;
+    //return 0;
   }
   if(nx == -1) {
     nx = width-1;
-    return 0;
+    //return 0;
   }
 
   if(ny == height) {
     ny = 0;
-    return 0;
+    //return 0;
   }
   if(ny == -1) {
     ny = height-1;
-    return 0;
+    //return 0;
   }
 
   if(last_gen[nx][ny].alive) {
