@@ -147,14 +147,12 @@ public:
                 return current_color;
             return Color::BLACK;
         }
-        if (c.alive && cl.alive)
-            return Color::GREEN;
-        if (c.alive && !cl.alive)
+        if (c.alive)
             return Color::BLUE;
-        if (!c.alive && cl.alive)
+        else if (!c.alive && cl.alive)
             return Color::RED;
 
-        return Color::DARKLBUE;
+        return Color::BLACK;
     }
 
     SDL_Color get_random_color() {
